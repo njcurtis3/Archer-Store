@@ -26,8 +26,7 @@ h1, h2, h3 { font-family: "Oswald", sans-serif; letter-spacing: .02em; margin: 0
 .top { background: var(--olive); color: #f4f2ec; position: sticky; top: 0; z-index: 5; }
 .top-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
 .brand { display: flex; align-items: center; gap: 12px; }
-.brand-mark { width: 40px; height: 40px; border: 2px solid #f4f2ec; border-radius: 8px; display: grid; place-items: center;
-  font: 600 22px "Oswald", sans-serif; }
+.brand-mark { width: 44px; height: 44px; object-fit: contain; display: block; }
 .brand h1 { font-size: 22px; text-transform: uppercase; }
 .brand p { margin: 0; font-size: 12px; opacity: .85; }
 .cart-btn { background: #f4f2ec; color: var(--olive-dark); border: 0; border-radius: 999px; padding: 8px 14px;
@@ -85,3 +84,8 @@ select, input { font: 15px "Inter", sans-serif; padding: 9px 10px; border: 1px s
 .msg.ok { color: var(--ok); } .msg.err { color: var(--err); }
 .foot { color: var(--muted); font-size: 13px; padding: 24px 16px 40px; border-top: 1px solid var(--line); }
 @media (max-width: 420px) { .brand p { display: none; } .brand h1 { font-size: 20px; } }
+
+.hero { background: radial-gradient(ellipse at 50% 40%, #59632a 0%, var(--olive) 45%, #2f3413 100%); border-top: 1px solid rgba(255,255,255,.08); }
+.hero-inner { display: flex; justify-content: center; padding: 28px 16px 32px; }
+.hero-logo { width: min(260px, 62vw); height: auto; filter: drop-shadow(0 2px 10px rgba(0,0,0,.35)); }
+@media (prefers-color-scheme: dark) { .hero { background: radial-gradient(ellipse at 50% 40%, #3d4419 0%, #2a2f12 50%, #15170f 100%); } }
