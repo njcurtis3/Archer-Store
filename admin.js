@@ -20,6 +20,35 @@ const fmtPhone = (p) => {
 };
 const itemCount = (o) => (o.items || []).reduce((n, i) => n + (i.qty || 0), 0);
 
+// Prices arrive from the customer's browser, so the database can't vouch for
+// them. Compare each order to the current catalog and to its own arithmetic.
+const priceOf = (id) => {
+  const p = settings.prices?.[id];
+  if (typeof p === "number") return p;
+  return PRODUCTS.find((x) => x.id === id)?.defaultPrice ?? null;
+};
+function checkOrder(o) {
+  const notes = [];
+  let sub = 0;
+  for (const i of o.items || []) {
+    const p = PRODUCTS.find((x) => x.id === i.productId);
+    const label = p ? `${p.number} ${p.color}` : esc(i.productId || "Unknown item");
+    if (!p) { notes.push(`${label} isn't in the catalog.`); continue; }
+    if (!Number.isInteger(i.qty) || i.qty < 1 || i.qty > 20) notes.push(`${label} has an odd quantity (${esc(i.qty)}).`);
+    const now = priceOf(p.id);
+    if (i.price == null && now != null) notes.push(`${label} was “Price TBD” when ordered; it's now ${money(now)} each, not in this total.`);
+    else if (i.price != null && now != null && round2(i.price) !== round2(now)) notes.push(`${label} charged ${money(i.price)} each; current price is ${money(now)}.`);
+    else if (i.price != null && now == null) notes.push(`${label} charged ${money(i.price)} each, but its price is TBD.`);
+    sub += (i.price || 0) * (i.qty || 0);
+  }
+  sub = round2(sub);
+  const rate = settings.taxRate ?? DEFAULT_TAX_RATE;
+  if (round2(o.subtotal) !== sub) notes.push(`Subtotal says ${money(o.subtotal)}, but the items add up to ${money(sub)}.`);
+  if (Math.abs(round2(o.tax) - round2(sub * rate)) > 0.01) notes.push(`Tax says ${money(o.tax)}; ${(rate * 100).toFixed(2).replace(/\.?0+$/, "")}% of ${money(sub)} is ${money(round2(sub * rate))}.`);
+  if (Math.abs(round2(o.total) - round2(o.subtotal + o.tax)) > 0.01) notes.push(`Total ${money(o.total)} doesn't equal subtotal plus tax.`);
+  return notes;
+}
+
 // ---------- Auth ----------
 async function init() {
   fb = await getFirebase().catch(() => null);
@@ -93,22 +122,25 @@ function render() {
 
   const list = visible();
   const box = $("#orders");
+  const flagged = orders.filter((o) => checkOrder(o).length).length;
   if (!list.length) {
     box.innerHTML = `<div class="none">${orders.length ? "No orders match." : "No orders yet."}</div>`;
   } else {
-    box.innerHTML = list.map((o) => {
+    box.innerHTML = (flagged ? `<div class="flagnote">${flagged} order${flagged === 1 ? "" : "s"} need${flagged === 1 ? "s" : ""} a price check — see the notes below.</div>` : "") + list.map((o) => {
       const st = o.status === "paid" ? "paid" : "unpaid";
+      const notes = checkOrder(o);
       const rows = (o.items || []).map((i) => `
         <tr>
           <td>${i.qty} × ${esc(i.name)}<span class="d">${esc(i.color)} · Size ${esc(i.size)} · ${esc(i.logo)} logo · ${esc(i.number)}</span></td>
           <td class="n">${i.price == null ? "TBD" : money(i.price * i.qty)}</td>
         </tr>`).join("");
       return `
-      <article class="order${selected.has(o.id) ? " sel" : ""}" data-id="${o.id}">
+      <article class="order${selected.has(o.id) ? " sel" : ""}${notes.length ? " flag" : ""}" data-id="${o.id}">
         <label class="ocheck"><input type="checkbox" data-sel="${o.id}"${selected.has(o.id) ? " checked" : ""} aria-label="Select order"></label>
         <div class="ohead"><h3>${esc(o.last)}, ${esc(o.first)}</h3><span class="when">${fmtDate(o.createdAt)}</span></div>
         <div class="ocontact"><a href="tel:${esc(o.phone)}">${esc(fmtPhone(o.phone))}</a> · ${itemCount(o)} item${itemCount(o) === 1 ? "" : "s"}</div>
         <table class="items">${rows}</table>
+        ${notes.length ? `<ul class="flags">${notes.map((n) => `<li>${n}</li>`).join("")}</ul>` : ""}
         <div class="ofoot">
           <div class="amounts">Subtotal ${money(o.subtotal)} · Tax ${money(o.tax)} · Total<strong>${money(o.total)}</strong></div>
           <div class="oactions">

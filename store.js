@@ -4,6 +4,7 @@ import { getFirebase } from "./firebase.js";
 const $ = (s) => document.querySelector(s);
 let settings = { taxRate: DEFAULT_TAX_RATE, prices: {}, open: true };
 let cart = [];
+let submitting = false;
 try { cart = JSON.parse(localStorage.getItem("archerCart2") || "[]"); } catch (e) { cart = []; }
 const saveCart = () => { try { localStorage.setItem("archerCart2", JSON.stringify(cart)); } catch (e) {} };
 
@@ -102,39 +103,49 @@ function renderCart() {
   $("#taxLabel").textContent = `Tax (${(settings.taxRate * 100).toFixed(2).replace(/\.?0+$/, "")}%)`;
   $("#cartTax").textContent = money(t.tax);
   $("#cartTotal").textContent = money(t.total) + (items.some((i) => i.price == null) ? " + TBD" : "");
-  $("#submitBtn").disabled = !items.length || !settings.open;
+  $("#submitBtn").disabled = submitting || !items.length || !settings.open;
 }
 
 async function onCheckout(e) {
   e.preventDefault();
+  if (submitting) return;
   const f = e.target, msg = $("#checkoutMsg");
   const items = lineItems();
   if (!items.length) return;
-  const fb = await getFirebase().catch(() => null);
-  if (!fb) {
-    msg.className = "msg err";
-    msg.textContent = "Online ordering isn't set up yet. Please contact the unit apparel POC.";
-    return;
-  }
-  $("#submitBtn").disabled = true; msg.className = "msg"; msg.textContent = "Sending your order…";
+  // Lock before any await so a double-tap can't send the order twice, and read
+  // the form now so nothing typed while it sends can change what was ordered.
+  submitting = true; $("#submitBtn").disabled = true;
+  const who = {
+    first: f.first.value.trim().slice(0, 50),
+    last: f.last.value.trim().slice(0, 50),
+    phone: f.phone.value.replace(/\D/g, "").slice(0, 15)
+  };
+  const t = totals(items);
+  const tbd = items.some((i) => i.price == null);
+  msg.className = "msg"; msg.textContent = "Sending your order…";
   try {
+    const fb = await getFirebase().catch(() => null);
+    if (!fb) {
+      msg.className = "msg err";
+      msg.textContent = "Online ordering isn't set up yet. Please contact the unit apparel POC.";
+      return;
+    }
     const { fs, db } = fb;
-    const t = totals(items);
     await fs.addDoc(fs.collection(db, "orders"), {
-      first: f.first.value.trim().slice(0, 50),
-      last: f.last.value.trim().slice(0, 50),
-      phone: f.phone.value.replace(/\D/g, "").slice(0, 15),
-      items, ...t, taxRate: settings.taxRate,
+      ...who, items, ...t, taxRate: settings.taxRate,
       status: "unpaid",
       createdAt: fs.serverTimestamp()
     });
-    cart = []; saveCart(); renderCart(); f.reset();
+    cart = []; saveCart(); f.reset();
     msg.className = "msg ok";
-    msg.textContent = `Order placed! Your total is ${money(t.total)}. The POC will reach out about payment.`;
+    msg.textContent = tbd
+      ? `Order placed! Your total so far is ${money(t.total)}, plus the price of any “Price TBD” items once it's set. The POC will reach out about payment.`
+      : `Order placed! Your total is ${money(t.total)}. The POC will reach out about payment.`;
   } catch (err) {
     console.error(err);
     msg.className = "msg err"; msg.textContent = "Couldn't send your order. Please try again.";
-    $("#submitBtn").disabled = false;
+  } finally {
+    submitting = false; renderCart();
   }
 }
 
