@@ -68,7 +68,7 @@
 .top-actions { display: flex; gap: 8px; }
 .top-actions a.cart-btn { text-decoration: none; }
 .order.flag { border-color: var(--err); }
-.flags { margin: 10px 0 0; padding: 8px 12px 8px 28px; border-radius: 8px; font-size: 13px; color: var(--err);
+.flags { grid-column: 2; margin: 6px 0 0; padding: 8px 12px 8px 28px; border-radius: 8px; font-size: 13px; color: var(--err);
   background: color-mix(in srgb, var(--err) 10%, transparent); }
 .flags li + li { margin-top: 2px; }
 .flagnote { padding: 10px 14px; border-radius: var(--radius); border: 1px solid var(--err); color: var(--err); font-weight: 600; font-size: 14px; }
