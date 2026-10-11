@@ -18,6 +18,7 @@
   }
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 "Inter", system-ui, sans-serif; }
 a { color: var(--olive); }
 h1, h2, h3 { font-family: "Oswald", sans-serif; letter-spacing: .02em; margin: 0; }
