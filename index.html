@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Archer Store</title>
+  <meta name="description" content="A CO 440th Civil Affairs unit apparel store">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-inner">
+      <div class="brand">
+        <span class="brand-mark">A</span>
+        <div>
+          <h1>Archer Store</h1>
+          <p>A CO 440th Civil Affairs · Unit Apparel FY27</p>
+        </div>
+      </div>
+      <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+        Cart <span class="badge" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="intro">
+      <h2>Order your unit gear</h2>
+      <p>Pick an item, choose your size and logo color, and add it to your cart. When you check out, your order goes straight onto the unit order sheet.</p>
+    </section>
+
+    <section>
+      <div id="status" class="status">Loading catalog…</div>
+      <div id="products" class="grid"></div>
+    </section>
+  </main>
+
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-panel">
+      <div class="drawer-head">
+        <h2>Your cart</h2>
+        <button class="icon-btn" id="closeCart" aria-label="Close cart">✕</button>
+      </div>
+      <ul id="cartItems" class="cart-items"></ul>
+      <div class="cart-total"><span>Estimated total</span><strong id="cartTotal">$0.00</strong></div>
+
+      <form id="checkout" class="checkout">
+        <div class="row">
+          <label>First name<input name="first" required autocomplete="given-name"></label>
+          <label>Last name<input name="last" required autocomplete="family-name"></label>
+        </div>
+        <label>Phone #<input name="phone" type="tel" required autocomplete="tel" placeholder="8065551234"></label>
+        <button type="submit" class="primary" id="submitBtn">Place order</button>
+        <p class="fine">Prices are estimates per unit before setup and tax; final amount is confirmed on the payments sheet.</p>
+        <div id="checkoutMsg" class="msg" role="status"></div>
+      </form>
+    </div>
+  </aside>
+
+  <footer class="wrap foot">Questions? Contact your unit apparel POC.</footer>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
