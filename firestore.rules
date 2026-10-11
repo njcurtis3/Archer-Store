@@ -1,0 +1,43 @@
+rules_version = '2';
+
+// Paste into Firebase console → Firestore Database → Rules, then Publish.
+// Anyone can place an order; only the admin account can read, edit or delete
+// orders, and only the admin can change prices and tax.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == "nathanjcurtis3@gmail.com"
+        && request.auth.token.email_verified == true;
+    }
+
+    function shortString(v, max) {
+      return v is string && v.size() > 0 && v.size() <= max;
+    }
+
+    match /settings/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read, update, delete: if isAdmin();
+
+      allow create: if
+        request.resource.data.keys().hasOnly(
+          ['first', 'last', 'phone', 'items', 'subtotal', 'tax', 'total', 'taxRate', 'status', 'createdAt'])
+        && shortString(request.resource.data.first, 50)
+        && shortString(request.resource.data.last, 50)
+        && shortString(request.resource.data.phone, 15)
+        && request.resource.data.items is list
+        && request.resource.data.items.size() > 0
+        && request.resource.data.items.size() <= 30
+        && request.resource.data.subtotal is number
+        && request.resource.data.tax is number
+        && request.resource.data.total is number
+        && request.resource.data.status == 'unpaid'
+        && request.resource.data.createdAt == request.time;
+    }
+  }
+}

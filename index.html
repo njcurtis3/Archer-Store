@@ -28,11 +28,11 @@
   <main class="wrap">
     <section class="intro">
       <h2>Order your unit gear</h2>
-      <p>Pick an item, choose your size and logo color, and add it to your cart. When you check out, your order goes straight onto the unit order sheet.</p>
+      <p>Pick an item, choose your size and logo color, and add it to your cart. When you check out, your order is sent to the unit apparel POC.</p>
     </section>
 
     <section>
-      <div id="status" class="status">Loading catalog…</div>
+      <div id="status" class="status" hidden></div>
       <div id="products" class="grid"></div>
     </section>
   </main>
@@ -44,7 +44,11 @@
         <button class="icon-btn" id="closeCart" aria-label="Close cart">✕</button>
       </div>
       <ul id="cartItems" class="cart-items"></ul>
-      <div class="cart-total"><span>Estimated total</span><strong id="cartTotal">$0.00</strong></div>
+      <div class="totals">
+        <div><span>Subtotal</span><span id="cartSubtotal">$0.00</span></div>
+        <div><span id="taxLabel">Tax</span><span id="cartTax">$0.00</span></div>
+        <div class="grand"><span>Total</span><strong id="cartTotal">$0.00</strong></div>
+      </div>
 
       <form id="checkout" class="checkout">
         <div class="row">
@@ -53,7 +57,7 @@
         </div>
         <label>Phone #<input name="phone" type="tel" required autocomplete="tel" placeholder="8065551234"></label>
         <button type="submit" class="primary" id="submitBtn">Place order</button>
-        <p class="fine">Prices are estimates per unit before setup and tax; final amount is confirmed on the payments sheet.</p>
+        <p class="fine">Pay the POC once your order is confirmed. Items marked “Price TBD” are added to your total once pricing is set.</p>
         <div id="checkoutMsg" class="msg" role="status"></div>
       </form>
     </div>
@@ -61,7 +65,6 @@
 
   <footer class="wrap foot">Questions? Contact your unit apparel POC.</footer>
 
-  <script src="config.js"></script>
-  <script src="app.js"></script>
+  <script type="module" src="store.js"></script>
 </body>
 </html>

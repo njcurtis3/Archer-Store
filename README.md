@@ -1,23 +1,22 @@
 # Archer Store
 
-Unit apparel store for A CO 440th Civil Affairs, hosted on GitHub Pages. Products come live from the `catalog` tab of the order spreadsheet; checkout writes orders into the `Orders List` tab.
+Unit apparel store for A CO 440th Civil Affairs, hosted on GitHub Pages at https://njcurtis3.github.io/Archer-Store/.
 
-## Files
-- `index.html`, `style.css`, `app.js` — the site
-- `config.js` — sheet ID, order endpoint, sizes, logo colors, fallback prices
-- `apps-script/Code.gs` — receives orders and writes them into the sheet
+- `index.html` / `store.js` — the store. Customers add items to a cart and check out with name and phone.
+- `admin.html` / `admin.js` — admin page (sign in with Google; only nathanjcurtis3@gmail.com gets in). Orders, phone numbers, quantities, subtotal, tax and totals; paid/unpaid tracking; selection totals; supplier order summary by size; CSV export; price, tax and open/closed settings.
+- `products.js` — the catalog (items, photos, sizes, logo colors) and admin email.
+- `firebase-config.js` — Firebase project settings.
+- `firestore.rules` — database security rules.
 
-## Managing products
-Edit the `catalog` tab. Columns: `Catalog` (product link) · `type` · `Apparel #` · `Apparel Name`. Optional extra columns the site picks up automatically:
-- `price` — per-unit price (otherwise the fallback in `config.js` is used; items without one show "Price TBD")
-- `image` — a direct image URL for the product card
+Orders are stored in Firebase Cloud Firestore. See the setup steps below.
 
-## Turn on GitHub Pages
-Repo **Settings → Pages → Build and deployment → Deploy from a branch → `main` / root → Save**. The site appears at `https://njcurtis3.github.io/Archer-Store/` within a minute or two.
+## One-time Firebase setup
+1. Go to console.firebase.google.com → **Add project** (Google Analytics not needed).
+2. **Build → Firestore Database → Create database** → production mode → pick a US location.
+3. **Firestore → Rules**: replace everything with the contents of `firestore.rules` → **Publish**.
+4. **Build → Authentication → Get started → Sign-in method → Google → Enable** → save.
+5. **Authentication → Settings → Authorized domains → Add domain** → `njcurtis3.github.io`.
+6. **Project settings (gear) → Your apps → Web (`</>`)** → register an app → copy the `firebaseConfig` values into `firebase-config.js` and commit.
 
-## Connect checkout to the sheet
-1. Open the spreadsheet → **Extensions → Apps Script**, paste in `apps-script/Code.gs`, save.
-2. **Deploy → New deployment → Web app**. Execute as: *Me*. Who has access: *Anyone*. Authorize when prompted.
-3. Copy the `/exec` URL into `ORDER_ENDPOINT` in `config.js` and commit.
-
-Until step 3 is done, checkout opens an email with the order details instead.
+## Changing products
+Edit `PRODUCTS` in `products.js`. Prices and the tax rate are changed on the admin page.
