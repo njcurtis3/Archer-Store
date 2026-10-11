@@ -65,3 +65,5 @@
 .switch { flex-direction: row; align-items: center; gap: 10px; font-size: 14px; color: var(--ink); }
 .switch input { width: 18px; height: 18px; accent-color: var(--olive); }
 #priceFields { display: flex; flex-direction: column; gap: 10px; }
+.top-actions { display: flex; gap: 8px; }
+.top-actions a.cart-btn { text-decoration: none; }
