@@ -39,7 +39,8 @@ export const PRODUCTS = [
     style: "Pullover Hoodie",
     color: "Black",
     link: "https://www.sanmar.com/p/75477_Black",
-    image: "https://cdnp.sanmar.com/medias/sys_master/images/hff/h85/33039535898654/1200W_75477_Black-2-ST580BlackModelBack/1200W-75477-Black-2-ST580BlackModelBack.jpg",
+    // SanMar model photo with the back print added from the printer's proof.
+    image: "img/hoodie-st580-back.jpg",
     defaultPrice: null
   },
   {
