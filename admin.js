@@ -282,6 +282,33 @@ document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("clic
 }));
 $("#search").addEventListener("input", (e) => { query = e.target.value; render(); });
 
+// Bring every unpaid order in line with the current prices and tax rate. Paid
+// orders keep what was charged. Returns how many orders changed.
+async function repriceUnpaid() {
+  const { fs, db } = fb;
+  const rate = settings.taxRate ?? DEFAULT_TAX_RATE;
+  const changes = [];
+  for (const o of orders) {
+    if (o.status === "paid") continue;
+    const items = (o.items || []).map((i) => {
+      const p = PRODUCTS.find((x) => x.id === i.productId);
+      return p ? { ...i, price: priceOf(p.id) } : i;
+    });
+    const subtotal = round2(items.reduce((t, i) => t + (i.price || 0) * (i.qty || 0), 0));
+    const tax = round2(subtotal * rate);
+    const total = round2(subtotal + tax);
+    const same = subtotal === o.subtotal && tax === o.tax && total === o.total && o.taxRate === rate &&
+      items.every((i, k) => i.price === o.items[k].price);
+    if (!same) changes.push([o.id, { items, subtotal, tax, total, taxRate: rate }]);
+  }
+  for (let k = 0; k < changes.length; k += 400) {
+    const batch = fs.writeBatch(db);
+    changes.slice(k, k + 400).forEach(([id, data]) => batch.update(fs.doc(db, "orders", id), data));
+    await batch.commit();
+  }
+  return changes.length;
+}
+
 $("#settingsForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const f = e.target, msg = $("#settingsMsg");
@@ -296,9 +323,16 @@ $("#settingsForm").addEventListener("submit", async (e) => {
     await fb.fs.setDoc(fb.fs.doc(fb.db, "settings", "store"), next);
     settings = next;
     renderTotals();
-    msg.className = "msg ok"; msg.textContent = "Saved.";
   } catch (err) {
     msg.className = "msg err"; msg.textContent = "Couldn't save: " + err.message;
+    return;
+  }
+  try {
+    const n = await repriceUnpaid();
+    msg.className = "msg ok";
+    msg.textContent = n ? `Saved. Updated ${n} unpaid order${n === 1 ? "" : "s"} to the new prices.` : "Saved. No unpaid orders needed new prices.";
+  } catch (err) {
+    msg.className = "msg err"; msg.textContent = "Settings saved, but unpaid orders couldn't be updated: " + err.message;
   }
 });
 
