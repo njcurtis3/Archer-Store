@@ -21,6 +21,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Admin-only data, such as what each item costs.
+    match /private/{doc} {
+      allow read, write: if isAdmin();
+    }
+
     match /orders/{orderId} {
       allow read, update, delete: if isAdmin();
 

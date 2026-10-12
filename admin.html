@@ -46,8 +46,9 @@
           <button data-f="all" class="on">All</button>
           <button data-f="unpaid">Unpaid</button>
           <button data-f="paid">Paid</button>
+          <button data-f="pickup">Not picked up</button>
         </div>
-        <input id="search" type="search" placeholder="Search name or phone">
+        <input id="search" type="search" placeholder="Search name, phone or order #">
       </section>
 
       <section class="selbar" id="selbar">
@@ -57,6 +58,7 @@
           <button class="ghost" id="markPaid" disabled>Mark paid</button>
           <button class="ghost" id="markUnpaid" disabled>Mark unpaid</button>
           <button class="ghost" id="exportCsv">Export CSV</button>
+          <button class="ghost" id="printPickup">Print pickup list</button>
         </div>
       </section>
 
@@ -65,6 +67,8 @@
       <details class="panel" open>
         <summary>Supplier order summary <span class="hint" id="supHint">(all shown orders)</span></summary>
         <div id="supplier"></div>
+        <button class="ghost" id="exportSupplier" style="margin-top:10px">Download supplier sheet (CSV)</button>
+        <p class="fine" style="margin-top:6px">One row per item, color and logo, with a column for each size — the size-grid layout printers and SanMar order forms use.</p>
       </details>
 
       <details class="panel">
@@ -87,6 +91,27 @@
       </details>
     </div>
   </main>
+
+  <dialog id="editor" class="editor" aria-labelledby="editTitle">
+    <form id="editForm" class="editform">
+      <h2 id="editTitle">Edit order</h2>
+      <div class="row3">
+        <label>First name<input name="first" maxlength="50" required></label>
+        <label>Last name<input name="last" maxlength="50" required></label>
+        <label>Phone #<input name="phone" type="tel" inputmode="tel" required></label>
+      </div>
+      <div id="editItems"></div>
+      <button type="button" class="ghost" id="addItem">+ Add item</button>
+      <p class="fine">Unpaid orders are priced at today's prices. On paid orders, lines you don't change keep what was charged.</p>
+      <div class="msg" id="editMsg" role="status"></div>
+      <div class="eactions">
+        <button type="button" class="ghost" id="editCancel">Cancel</button>
+        <button type="submit" class="primary">Save changes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="printArea" class="print-area"></div>
 
   <script type="module" src="admin.js"></script>
 </body>

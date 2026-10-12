@@ -1,4 +1,4 @@
-import { PRODUCTS, logosFor, sizesFor, DEFAULT_TAX_RATE, VENMO_USER, venmoPayLink, money, round2, esc } from "./products.js";
+import { PRODUCTS, logosFor, sizesFor, DEFAULT_TAX_RATE, VENMO_USER, venmoPayLink, orderCode, sizeChartLink, cleanPhone, fmtPhone, money, round2, esc } from "./products.js";
 import { getFirebase } from "./firebase.js";
 
 const $ = (s) => document.querySelector(s);
@@ -25,7 +25,7 @@ function renderProducts() {
       <div class="body">
         <div class="meta"><span class="chip">${esc(p.number)}</span><span class="dot" style="background:${swatch(p.color)}"></span>${esc(p.color)}</div>
         <h3>${esc(p.name)}</h3>
-        <p class="sub">${esc(p.style)} · <a href="${esc(p.link)}" target="_blank" rel="noopener">Product details</a></p>
+        <p class="sub">${esc(p.style)} · <a href="${esc(p.link)}" target="_blank" rel="noopener">Product details</a> · <a href="${esc(sizeChartLink(p))}" target="_blank" rel="noopener">Size chart</a></p>
         <div class="price">${price == null ? "Price TBD" : money(price)}</div>
         <form class="add" data-i="${i}">
           <label>Size<select name="size">${sizesFor(p).map((s) => `<option${s === "M" ? " selected" : ""}>${s}</option>`).join("")}</select></label>
@@ -38,6 +38,7 @@ function renderProducts() {
   }).join("");
   grid.querySelectorAll("form.add").forEach((f) => f.addEventListener("submit", onAdd));
   grid.querySelectorAll(".slides").forEach(wireSlides);
+  grid.querySelectorAll(".visual img").forEach((img) => img.addEventListener("click", () => openViewer(img)));
   grid.querySelectorAll(".visual img").forEach((img) => {
     const fallback = () => {
       const p = PRODUCTS[+img.dataset.i];
@@ -71,6 +72,41 @@ function wireSlides(slides) {
   const dots = [...v.querySelectorAll(".dots span")];
   slides.addEventListener("scroll", () => dots.forEach((d, k) => d.classList.toggle("on", k === at())), { passive: true });
 }
+
+// Full-screen photo viewer. Pinch to zoom works because it's a normal page image.
+const viewer = $("#viewer");
+let viewShots = [], viewAt = 0;
+function openViewer(img) {
+  const shots = [...img.closest(".visual").querySelectorAll("img")];
+  viewShots = shots.map((x) => ({ src: x.currentSrc || x.src, alt: x.alt }));
+  viewAt = Math.max(0, shots.indexOf(img));
+  showView();
+  viewer.showModal();
+}
+function showView() {
+  const s = viewShots[viewAt], im = $("#viewerImg");
+  im.src = s.src; im.alt = s.alt;
+  $("#viewerCount").textContent = viewShots.length > 1 ? `${viewAt + 1} / ${viewShots.length}` : "";
+  viewer.querySelectorAll(".vnav").forEach((b) => (b.hidden = viewShots.length < 2));
+}
+const stepView = (d) => { viewAt = (viewAt + d + viewShots.length) % viewShots.length; showView(); };
+$("#viewerPrev").addEventListener("click", () => stepView(-1));
+$("#viewerNext").addEventListener("click", () => stepView(1));
+$("#viewerClose").addEventListener("click", () => viewer.close());
+viewer.addEventListener("click", (e) => { if (e.target === viewer) viewer.close(); });
+viewer.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowLeft") stepView(-1);
+  if (e.key === "ArrowRight") stepView(1);
+});
+let touchX = null;
+viewer.addEventListener("touchstart", (e) => { touchX = e.touches.length === 1 ? e.touches[0].clientX : null; }, { passive: true });
+viewer.addEventListener("touchend", (e) => {
+  // Leave the gesture alone when zoomed in, so panning doesn't change photos.
+  if (touchX == null || (window.visualViewport?.scale || 1) > 1.05) { touchX = null; return; }
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 50) stepView(dx < 0 ? 1 : -1);
+  touchX = null;
+});
 
 function onAdd(e) {
   e.preventDefault();
@@ -138,11 +174,17 @@ async function onCheckout(e) {
   if (!items.length) return;
   // Lock before any await so a double-tap can't send the order twice, and read
   // the form now so nothing typed while it sends can change what was ordered.
+  const phone = cleanPhone(f.phone.value);
+  if (!phone) {
+    f.phone.setCustomValidity("Enter a 10-digit phone number, like 806 555 1234.");
+    f.phone.reportValidity();
+    return;
+  }
   submitting = true; $("#submitBtn").disabled = true;
   const who = {
     first: f.first.value.trim().slice(0, 50),
     last: f.last.value.trim().slice(0, 50),
-    phone: f.phone.value.replace(/\D/g, "").slice(0, 15)
+    phone
   };
   const t = totals(items);
   const tbd = items.some((i) => i.price == null);
@@ -155,25 +197,37 @@ async function onCheckout(e) {
       return;
     }
     const { fs, db } = fb;
-    await fs.addDoc(fs.collection(db, "orders"), {
+    const ref = await fs.addDoc(fs.collection(db, "orders"), {
       ...who, items, ...t, taxRate: settings.taxRate,
       status: "unpaid",
       createdAt: fs.serverTimestamp()
     });
     cart = []; saveCart(); f.reset();
     msg.className = "msg ok";
-    const pay = venmoPayLink(t.total, `Archer Store - ${who.first} ${who.last}`);
-    msg.innerHTML = (tbd
-      ? `Order placed! Your total so far is <strong>${money(t.total)}</strong>, plus the price of any “Price TBD” items once it's set. You can pay this part now and the rest when the POC confirms it.`
-      : `Order placed! Your total is <strong>${money(t.total)}</strong>.`) +
-      `<a class="venmo-btn" href="${esc(pay)}" target="_blank" rel="noopener">Pay ${money(t.total)} with Venmo</a>` +
-      `<span class="fine">Opens Venmo to @${esc(VENMO_USER)} with the amount and your name filled in.</span>`;
+    msg.innerHTML = receipt(orderCode(ref.id), who, items, t, tbd);
   } catch (err) {
     console.error(err);
     msg.className = "msg err"; msg.textContent = "Couldn't send your order. Please try again.";
   } finally {
     submitting = false; renderCart();
   }
+}
+
+// What the customer sees after ordering: something to screenshot, and the pay button.
+function receipt(code, who, items, t, tbd) {
+  const pay = venmoPayLink(t.total, `Archer Store #${code} - ${who.first} ${who.last}`);
+  const lines = items.map((i) => `<li><span>${i.qty} × ${esc(i.name)}<small>${esc(i.color)} · ${esc(i.size)} · ${esc(i.logo)} logo</small></span><span>${i.price == null ? "TBD" : money(i.price * i.qty)}</span></li>`).join("");
+  return `<div class="receipt">
+    <div class="rhead"><strong>Order placed</strong><span>Order #${esc(code)}</span></div>
+    <p class="fine">${esc(who.first)} ${esc(who.last)} · ${esc(fmtPhone(who.phone))} · ${new Date().toLocaleDateString()}</p>
+    <ul>${lines}</ul>
+    <div class="rtot"><span>Subtotal</span><span>${money(t.subtotal)}</span></div>
+    <div class="rtot"><span>Tax</span><span>${money(t.tax)}</span></div>
+    <div class="rtot grand"><span>Total${tbd ? " so far" : ""}</span><strong>${money(t.total)}</strong></div>
+    ${tbd ? `<p class="fine">Plus the price of any “TBD” items once it's set. You can pay this part now and the rest when the POC confirms it.</p>` : ""}
+    <a class="venmo-btn" href="${esc(pay)}" target="_blank" rel="noopener">Pay ${money(t.total)} with Venmo</a>
+    <p class="fine">Opens Venmo to @${esc(VENMO_USER)} with the amount and order number filled in. Screenshot this receipt for your records.</p>
+  </div>`;
 }
 
 async function loadSettings() {
@@ -196,8 +250,9 @@ const closeCart = () => { drawer.classList.remove("open"); drawer.setAttribute("
 $("#cartBtn").addEventListener("click", openCart);
 $("#closeCart").addEventListener("click", closeCart);
 drawer.addEventListener("click", (e) => { if (e.target === drawer) closeCart(); });
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeCart(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !viewer.open) closeCart(); });
 $("#checkout").addEventListener("submit", onCheckout);
+$("#checkout").phone.addEventListener("input", (e) => e.target.setCustomValidity(""));
 
 renderProducts(); renderCart();
 loadSettings().then(() => { renderProducts(); renderCart(); });

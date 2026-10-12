@@ -73,13 +73,21 @@
           <label>First name<input name="first" required autocomplete="given-name"></label>
           <label>Last name<input name="last" required autocomplete="family-name"></label>
         </div>
-        <label>Phone #<input name="phone" type="tel" required autocomplete="tel" placeholder="8065551234"></label>
+        <label>Phone #<input name="phone" type="tel" inputmode="tel" required autocomplete="tel" placeholder="806 555 1234"></label>
         <button type="submit" class="primary" id="submitBtn">Place order</button>
         <p class="fine">After you place your order you can pay with Venmo. Items marked “Price TBD” are added to your total once pricing is set.</p>
         <div id="checkoutMsg" class="msg" role="status"></div>
       </form>
     </div>
   </aside>
+
+  <dialog id="viewer" class="viewer" aria-label="Photo viewer">
+    <img id="viewerImg" alt="">
+    <button type="button" class="vbtn vclose" id="viewerClose" aria-label="Close">✕</button>
+    <button type="button" class="vbtn vnav vprev" id="viewerPrev" aria-label="Previous photo">‹</button>
+    <button type="button" class="vbtn vnav vnext" id="viewerNext" aria-label="Next photo">›</button>
+    <div class="vcount" id="viewerCount"></div>
+  </dialog>
 
   <footer class="wrap foot">
     <span>Questions? Contact your unit apparel POC. Pay on Venmo: <a href="https://venmo.com/u/Nathan-Curtis-14" target="_blank" rel="noopener">@Nathan-Curtis-14</a></span>

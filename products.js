@@ -140,6 +140,21 @@ export const venmoPayLink = (amount, note) => `https://venmo.com/${VENMO_USER}?`
   txn: "pay", audience: "private", ...(amount > 0 ? { amount: amount.toFixed(2) } : {}), note
 }).toString();
 
+// Short order number shown to customers and in the admin page, from the order's database id.
+export const orderCode = (id) => String(id || "").slice(0, 6).toUpperCase();
+// SanMar's measurements page for a product link.
+export const sizeChartLink = (p) => `${p.link}/specSheetMeasurements`;
+// US phone numbers only: 10 digits, or 11 with a leading 1. Returns the 10 digits or null.
+export const cleanPhone = (v) => {
+  let d = String(v || "").replace(/\D/g, "");
+  if (d.length === 11 && d[0] === "1") d = d.slice(1);
+  return d.length === 10 ? d : null;
+};
+export const fmtPhone = (p) => {
+  const d = String(p || "").replace(/\D/g, "");
+  return d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : d;
+};
+
 export const money = (n) => "$" + (Number(n) || 0).toFixed(2);
 export const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
