@@ -7,7 +7,7 @@ Unit apparel store for A CO 440th Civil Affairs, hosted on GitHub Pages at https
 - `products.js` — the catalog (items, photos, sizes, logo colors) and admin email.
 - `firebase-config.js` — Firebase project settings.
 - `firestore.rules` — database security rules. Item costs live in `private/costs`, readable only by the admin.
-- `.github/workflows/pages.yml` — publishes the site. It replaces `?v=dev` on CSS and JS links with the commit, so browsers don't mix cached old files with new ones after an update. Keep the `?v=dev` tag on any new `.css`/`.js` link or import.
+- `.github/workflows/pages.yml` — publishes the site. It replaces `?v=dev` on CSS, JS and image links (in the HTML and JS files) with the commit, so browsers don't mix cached old files with new ones after an update. Keep the `?v=dev` tag on any new `.css`/`.js` link or import, and on `img/` paths.
 
 Orders are stored in Firebase Cloud Firestore. See the setup steps below.
 

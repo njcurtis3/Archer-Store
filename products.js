@@ -11,9 +11,9 @@ export const PRODUCTS = [
     image: "https://cdnp.sanmar.com/medias/sys_master/images/hf9/h1b/28963219472414/1200W_4349_Black-0-ST350BlackModelFront5/1200W-4349-Black-0-ST350BlackModelFront5.jpg",
     // Printer's proof mockups; shown instead of `image` when present.
     gallery: [
-      { src: "img/tee-black-front.jpg", view: "front" },
-      { src: "img/tee-black-back.jpg", view: "back" },
-      { src: "img/tee-black-side.jpg", view: "side" }
+      { src: "img/tee-black-front.jpg?v=dev", view: "front" },
+      { src: "img/tee-black-back.jpg?v=dev", view: "back" },
+      { src: "img/tee-black-side.jpg?v=dev", view: "side" }
     ],
     defaultPrice: 23.68
   },
@@ -26,9 +26,9 @@ export const PRODUCTS = [
     link: "https://www.sanmar.com/p/4349_CoyoteBrn",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/h15/h0e/28963222683678/1200W_4349_CoyoteBrn-0-ST350CoyoteBrnModelFront3/1200W-4349-CoyoteBrn-0-ST350CoyoteBrnModelFront3.jpg",
     gallery: [
-      { src: "img/tee-coyote-front.jpg", view: "front" },
-      { src: "img/tee-coyote-back.jpg", view: "back" },
-      { src: "img/tee-coyote-side.jpg", view: "side" }
+      { src: "img/tee-coyote-front.jpg?v=dev", view: "front" },
+      { src: "img/tee-coyote-back.jpg?v=dev", view: "back" },
+      { src: "img/tee-coyote-side.jpg?v=dev", view: "side" }
     ],
     defaultPrice: 21.42
   },
@@ -40,7 +40,7 @@ export const PRODUCTS = [
     color: "Black",
     link: "https://www.sanmar.com/p/75477_Black",
     // SanMar model photo with the back print added from the printer's proof.
-    image: "img/hoodie-st580-back.jpg",
+    image: "img/hoodie-st580-back.jpg?v=dev",
     defaultPrice: null
   },
   {
@@ -53,8 +53,8 @@ export const PRODUCTS = [
     image: "https://cdnp.sanmar.com/medias/sys_master/images/hd6/h91/33039512502302/1200W_9604_Black-0-CT100615BlackModelFront4/1200W-9604-Black-0-CT100615BlackModelFront4.jpg",
     // SanMar flat photos with the prints added from the printer's proof.
     gallery: [
-      { src: "img/carhartt-ct100615-front.jpg", view: "front" },
-      { src: "img/carhartt-ct100615-back.jpg", view: "back" },
+      { src: "img/carhartt-ct100615-front.jpg?v=dev", view: "front" },
+      { src: "img/carhartt-ct100615-back.jpg?v=dev", view: "back" },
       { src: "https://cdnp.sanmar.com/medias/sys_master/images/hd6/h91/33039512502302/1200W_9604_Black-0-CT100615BlackModelFront4/1200W-9604-Black-0-CT100615BlackModelFront4.jpg", view: "on a model, unprinted" }
     ],
     sizes: ["S", "M", "L", "XL", "2XL", "3XL", "4XL"],
@@ -70,8 +70,8 @@ export const PRODUCTS = [
     image: "https://cdnp.sanmar.com/medias/sys_master/images/h91/h3b/28446928863262/1200W_63784_Tan-0-NL9307TanModelFront/1200W-63784-Tan-0-NL9307TanModelFront.jpg",
     // SanMar flat photos with the prints added from the printer's proof.
     gallery: [
-      { src: "img/nextlevel-nl9307-tan-front.jpg", view: "front" },
-      { src: "img/nextlevel-nl9307-tan-back.jpg", view: "back" },
+      { src: "img/nextlevel-nl9307-tan-front.jpg?v=dev", view: "front" },
+      { src: "img/nextlevel-nl9307-tan-back.jpg?v=dev", view: "back" },
       { src: "https://cdnp.sanmar.com/medias/sys_master/images/h91/h3b/28446928863262/1200W_63784_Tan-0-NL9307TanModelFront/1200W-63784-Tan-0-NL9307TanModelFront.jpg", view: "on a model, unprinted" }
     ],
     sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
@@ -87,8 +87,8 @@ export const PRODUCTS = [
     image: "https://cdnp.sanmar.com/medias/sys_master/images/hb8/h04/28446911234078/1200W_63784_Black-0-NL9307BlackModelFront/1200W-63784-Black-0-NL9307BlackModelFront.jpg",
     // SanMar flat photos with the prints added from the printer's proof.
     gallery: [
-      { src: "img/nextlevel-nl9307-black-front.jpg", view: "front" },
-      { src: "img/nextlevel-nl9307-black-back.jpg", view: "back" },
+      { src: "img/nextlevel-nl9307-black-front.jpg?v=dev", view: "front" },
+      { src: "img/nextlevel-nl9307-black-back.jpg?v=dev", view: "back" },
       { src: "https://cdnp.sanmar.com/medias/sys_master/images/hb8/h04/28446911234078/1200W_63784_Black-0-NL9307BlackModelFront/1200W-63784-Black-0-NL9307BlackModelFront.jpg", view: "on a model, unprinted" }
     ],
     sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
