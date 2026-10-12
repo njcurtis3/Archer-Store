@@ -30,9 +30,33 @@ export const PRODUCTS = [
     link: "https://www.sanmar.com/p/75477_Black",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/hff/h85/33039535898654/1200W_75477_Black-2-ST580BlackModelBack/1200W-75477-Black-2-ST580BlackModelBack.jpg",
     defaultPrice: null
+  },
+  {
+    id: "ct100615-carbon",
+    number: "CT100615",
+    name: "Carhartt Rain Defender Paxton Heavyweight Hooded Sweatshirt",
+    style: "Hooded Sweatshirt",
+    color: "Carbon Heather",
+    link: "https://www.sanmar.com/p/9604_CarbonHthr",
+    image: "https://cdnp.sanmar.com/medias/sys_master/images/h31/h3e/33039515123742/1200W_9604_CarbonHthr-0-CT100615CarbonHthrModelFront4/1200W-9604-CarbonHthr-0-CT100615CarbonHthrModelFront4.jpg",
+    sizes: ["S", "M", "L", "XL", "2XL", "3XL", "4XL"],
+    defaultPrice: null
+  },
+  {
+    id: "nl9307-tan",
+    number: "NL9307",
+    name: "Next Level Apparel Heavyweight Hoodie",
+    style: "Pullover Hoodie",
+    color: "Tan",
+    link: "https://www.sanmar.com/p/63784_Tan",
+    image: "https://cdnp.sanmar.com/medias/sys_master/images/h91/h3b/28446928863262/1200W_63784_Tan-0-NL9307TanModelFront/1200W-63784-Tan-0-NL9307TanModelFront.jpg",
+    sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
+    defaultPrice: null
   }
 ];
 
+// Every size any product comes in, in display order. A product with its own
+// `sizes` list offers only those; the rest offer all of these.
 export const SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"];
 export const LOGO_COLORS = ["Black", "White"];
 export const DEFAULT_TAX_RATE = 0.0825;

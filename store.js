@@ -13,7 +13,7 @@ const priceOf = (id) => {
   if (typeof p === "number") return p;
   return PRODUCTS.find((x) => x.id === id)?.defaultPrice ?? null;
 };
-const swatch = (color) => ({ "Black": "#1d1f1c", "Coyote Brown": "#8a6f4e" }[color] || "#6b6f5e");
+const swatch = (color) => ({ "Black": "#1d1f1c", "Coyote Brown": "#8a6f4e", "Carbon Heather": "#5a5b5c", "Tan": "#c4ad86" }[color] || "#6b6f5e");
 
 function renderProducts() {
   const grid = $("#products");
@@ -30,7 +30,7 @@ function renderProducts() {
         <p class="sub">${esc(p.style)} · <a href="${esc(p.link)}" target="_blank" rel="noopener">Product details</a></p>
         <div class="price">${price == null ? "Price TBD" : money(price)}</div>
         <form class="add" data-i="${i}">
-          <label>Size<select name="size">${SIZES.map((s) => `<option${s === "M" ? " selected" : ""}>${s}</option>`).join("")}</select></label>
+          <label>Size<select name="size">${(p.sizes || SIZES).map((s) => `<option${s === "M" ? " selected" : ""}>${s}</option>`).join("")}</select></label>
           <label>Logo<select name="logo">${LOGO_COLORS.map((c) => `<option>${c}</option>`).join("")}</select></label>
           <label>Qty<input name="qty" type="number" min="1" max="20" value="1"></label>
           <button type="submit" class="primary"${settings.open ? "" : " disabled"}>${settings.open ? "Add to cart" : "Ordering closed"}</button>
