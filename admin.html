@@ -73,10 +73,17 @@
           <label class="switch"><input type="checkbox" name="open"> Store is open for orders</label>
           <label>Sales tax rate (%)<input name="taxRate" type="number" step="0.001" min="0" max="20" required></label>
           <div id="priceFields"></div>
+          <label>Printer setup fee ($)<input name="feeSetup" type="number" step="0.01" min="0" required></label>
+          <label>Printer color change fee ($)<input name="feeColor" type="number" step="0.01" min="0" required></label>
           <button class="primary" type="submit">Save settings</button>
           <div class="msg" id="settingsMsg" role="status"></div>
           <p class="fine">Price and tax changes apply to new orders. Existing orders keep the amounts they were placed at.</p>
         </form>
+      </details>
+
+      <details class="panel" open>
+        <summary>Totals</summary>
+        <div id="totals"></div>
       </details>
     </div>
   </main>

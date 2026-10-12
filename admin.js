@@ -7,7 +7,9 @@ let orders = [];
 let selected = new Set();
 let filter = "all";
 let query = "";
-let settings = { taxRate: DEFAULT_TAX_RATE, prices: {}, open: true };
+// Flat printer charges for the whole run, not per order. Editable in settings.
+const DEFAULT_FEES = { setup: 50, colorChange: 10 };
+let settings = { taxRate: DEFAULT_TAX_RATE, prices: {}, open: true, fees: { ...DEFAULT_FEES } };
 let unsub = null;
 
 const fmtDate = (ts) => {
@@ -155,6 +157,27 @@ function render() {
   }
   renderSelection(list);
   renderSupplier(selected.size ? orders.filter((o) => selected.has(o.id)) : list);
+  renderTotals();
+}
+
+function renderTotals() {
+  const fees = { ...DEFAULT_FEES, ...settings.fees };
+  const sum = (k) => round2(orders.reduce((t, o) => t + (o[k] || 0), 0));
+  const ordersTotal = sum("total");
+  const grand = round2(ordersTotal + fees.setup + fees.colorChange);
+  const tbd = orders.some((o) => (o.items || []).some((i) => i.price == null));
+  const items = orders.reduce((n, o) => n + itemCount(o), 0);
+  const row = (label, value, cls = "") => `<tr${cls ? ` class="${cls}"` : ""}><td>${label}</td><td class="n">${value}</td></tr>`;
+  $("#totals").innerHTML = `<table class="sup"><tbody>
+    ${row(`All orders (${orders.length} order${orders.length === 1 ? "" : "s"}, ${items} item${items === 1 ? "" : "s"})`, "")}
+    ${row("Items subtotal", money(sum("subtotal")))}
+    ${row("Sales tax", money(sum("tax")))}
+    ${row("Orders total", money(ordersTotal), "group")}
+    ${row("Printer setup fee", money(fees.setup))}
+    ${row("Printer color change fee", money(fees.colorChange))}
+    ${row("Total with printer fees", money(grand), "group")}
+  </tbody></table>
+  <p class="fine" style="margin-top:8px">Counts every order, paid and unpaid. The printer fees are charged once for the whole run.${tbd ? " Some orders have “Price TBD” items that aren't in these totals yet." : ""}</p>`;
 }
 
 function renderSelection(list) {
@@ -193,6 +216,9 @@ function renderSettings() {
   const f = $("#settingsForm");
   f.open.checked = settings.open !== false;
   f.taxRate.value = round2((settings.taxRate ?? DEFAULT_TAX_RATE) * 100 * 1000) / 1000;
+  const fees = { ...DEFAULT_FEES, ...settings.fees };
+  f.feeSetup.value = fees.setup;
+  f.feeColor.value = fees.colorChange;
   $("#priceFields").innerHTML = PRODUCTS.map((p) => {
     const v = typeof settings.prices?.[p.id] === "number" ? settings.prices[p.id] : p.defaultPrice;
     return `<label>${esc(p.name)} — ${esc(p.color)} ($)
@@ -264,10 +290,12 @@ $("#settingsForm").addEventListener("submit", async (e) => {
     const v = f[`price_${p.id}`].value;
     if (v !== "") prices[p.id] = round2(parseFloat(v));
   });
-  const next = { open: f.open.checked, taxRate: Math.round(parseFloat(f.taxRate.value) * 1000) / 100000, prices };
+  const fees = { setup: round2(parseFloat(f.feeSetup.value) || 0), colorChange: round2(parseFloat(f.feeColor.value) || 0) };
+  const next = { open: f.open.checked, taxRate: Math.round(parseFloat(f.taxRate.value) * 1000) / 100000, prices, fees };
   try {
     await fb.fs.setDoc(fb.fs.doc(fb.db, "settings", "store"), next);
     settings = next;
+    renderTotals();
     msg.className = "msg ok"; msg.textContent = "Saved.";
   } catch (err) {
     msg.className = "msg err"; msg.textContent = "Couldn't save: " + err.message;
