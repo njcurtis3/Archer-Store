@@ -90,6 +90,13 @@ export const PRODUCTS = [
 // `sizes` list offers only those; the rest offer all of these.
 export const SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"];
 export const LOGO_COLORS = ["Black", "White"];
+// Logo choices follow the garment color; colors not listed offer LOGO_COLORS.
+export const LOGOS_BY_COLOR = {
+  "Black": ["White", "White w/ Blue Wave"],
+  "Tan": ["Black"]
+};
+export const logosFor = (p) => LOGOS_BY_COLOR[p.color] || LOGO_COLORS;
+export const sizesFor = (p) => p.sizes || SIZES;
 export const DEFAULT_TAX_RATE = 0.0825;
 
 // The only account allowed into the admin page. Must match firestore.rules.

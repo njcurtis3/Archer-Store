@@ -1,4 +1,4 @@
-import { PRODUCTS, SIZES, LOGO_COLORS, DEFAULT_TAX_RATE, money, round2, esc } from "./products.js";
+import { PRODUCTS, logosFor, sizesFor, DEFAULT_TAX_RATE, money, round2, esc } from "./products.js";
 import { getFirebase } from "./firebase.js";
 
 const $ = (s) => document.querySelector(s);
@@ -30,8 +30,8 @@ function renderProducts() {
         <p class="sub">${esc(p.style)} · <a href="${esc(p.link)}" target="_blank" rel="noopener">Product details</a></p>
         <div class="price">${price == null ? "Price TBD" : money(price)}</div>
         <form class="add" data-i="${i}">
-          <label>Size<select name="size">${(p.sizes || SIZES).map((s) => `<option${s === "M" ? " selected" : ""}>${s}</option>`).join("")}</select></label>
-          <label>Logo<select name="logo">${LOGO_COLORS.map((c) => `<option>${c}</option>`).join("")}</select></label>
+          <label>Size<select name="size">${sizesFor(p).map((s) => `<option${s === "M" ? " selected" : ""}>${s}</option>`).join("")}</select></label>
+          <label>Logo<select name="logo">${logosFor(p).map((c) => `<option>${esc(c)}</option>`).join("")}</select></label>
           <label>Qty<input name="qty" type="number" min="1" max="20" value="1"></label>
           <button type="submit" class="primary"${settings.open ? "" : " disabled"}>${settings.open ? "Add to cart" : "Ordering closed"}</button>
         </form>
@@ -80,7 +80,11 @@ function totals(items) {
 }
 
 function renderCart() {
-  cart = cart.filter((c) => PRODUCTS.some((p) => p.id === c.productId));
+  // Drop saved cart lines for items, sizes or logos the store no longer offers.
+  cart = cart.filter((c) => {
+    const p = PRODUCTS.find((x) => x.id === c.productId);
+    return p && sizesFor(p).includes(c.size) && logosFor(p).includes(c.logo);
+  });
   const items = lineItems();
   $("#cartCount").textContent = items.reduce((n, i) => n + i.qty, 0);
   const list = $("#cartItems");

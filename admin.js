@@ -1,4 +1,4 @@
-import { PRODUCTS, SIZES, DEFAULT_TAX_RATE, ADMIN_EMAIL, money, round2, esc } from "./products.js";
+import { PRODUCTS, SIZES, DEFAULT_TAX_RATE, ADMIN_EMAIL, logosFor, sizesFor, money, round2, esc } from "./products.js";
 import { getFirebase } from "./firebase.js";
 
 const $ = (s) => document.querySelector(s);
@@ -35,6 +35,8 @@ function checkOrder(o) {
     const label = p ? `${p.number} ${p.color}` : esc(i.productId || "Unknown item");
     if (!p) { notes.push(`${label} isn't in the catalog.`); continue; }
     if (!Number.isInteger(i.qty) || i.qty < 1 || i.qty > 20) notes.push(`${label} has an odd quantity (${esc(i.qty)}).`);
+    if (!logosFor(p).includes(i.logo)) notes.push(`${label} has a ${esc(i.logo)} logo, which isn't offered on ${esc(p.color)} items (${logosFor(p).map(esc).join(" or ")}).`);
+    if (!sizesFor(p).includes(i.size)) notes.push(`${label} is size ${esc(i.size)}, which this item doesn't come in.`);
     const now = priceOf(p.id);
     if (i.price == null && now != null) notes.push(`${label} was “Price TBD” when ordered; it's now ${money(now)} each, not in this total.`);
     else if (i.price != null && now != null && round2(i.price) !== round2(now)) notes.push(`${label} charged ${money(i.price)} each; current price is ${money(now)}.`);
@@ -126,7 +128,7 @@ function render() {
   if (!list.length) {
     box.innerHTML = `<div class="none">${orders.length ? "No orders match." : "No orders yet."}</div>`;
   } else {
-    box.innerHTML = (flagged ? `<div class="flagnote">${flagged} order${flagged === 1 ? "" : "s"} need${flagged === 1 ? "s" : ""} a price check — see the notes below.</div>` : "") + list.map((o) => {
+    box.innerHTML = (flagged ? `<div class="flagnote">${flagged} order${flagged === 1 ? "" : "s"} need${flagged === 1 ? "s" : ""} a check — see the notes below.</div>` : "") + list.map((o) => {
       const st = o.status === "paid" ? "paid" : "unpaid";
       const notes = checkOrder(o);
       const rows = (o.items || []).map((i) => `
