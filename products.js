@@ -136,9 +136,8 @@ export const ADMIN_EMAIL = "nathanjcurtis3@gmail.com";
 // Where customers pay. Venmo username without the @.
 export const VENMO_USER = "Nathan-Curtis-14";
 // Opens Venmo (app on phones, website on computers) with the payment filled in.
-export const venmoPayLink = (amount, note) => "https://venmo.com/?" + new URLSearchParams({
-  txn: "pay", audience: "private", recipients: VENMO_USER,
-  ...(amount > 0 ? { amount: amount.toFixed(2) } : {}), note
+export const venmoPayLink = (amount, note) => `https://venmo.com/${VENMO_USER}?` + new URLSearchParams({
+  txn: "pay", audience: "private", ...(amount > 0 ? { amount: amount.toFixed(2) } : {}), note
 }).toString();
 
 export const money = (n) => "$" + (Number(n) || 0).toFixed(2);
