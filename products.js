@@ -51,6 +51,12 @@ export const PRODUCTS = [
     color: "Black",
     link: "https://www.sanmar.com/p/9604_Black",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/hd6/h91/33039512502302/1200W_9604_Black-0-CT100615BlackModelFront4/1200W-9604-Black-0-CT100615BlackModelFront4.jpg",
+    // SanMar flat photos with the prints added from the printer's proof.
+    gallery: [
+      { src: "img/carhartt-ct100615-front.jpg", view: "front" },
+      { src: "img/carhartt-ct100615-back.jpg", view: "back" },
+      { src: "https://cdnp.sanmar.com/medias/sys_master/images/hd6/h91/33039512502302/1200W_9604_Black-0-CT100615BlackModelFront4/1200W-9604-Black-0-CT100615BlackModelFront4.jpg", view: "on a model, unprinted" }
+    ],
     sizes: ["S", "M", "L", "XL", "2XL", "3XL", "4XL"],
     defaultPrice: null
   },
