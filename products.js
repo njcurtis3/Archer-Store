@@ -32,13 +32,13 @@ export const PRODUCTS = [
     defaultPrice: null
   },
   {
-    id: "ct100615-carbon",
+    id: "ct100615-black",
     number: "CT100615",
     name: "Carhartt Rain Defender Paxton Heavyweight Hooded Sweatshirt",
     style: "Hooded Sweatshirt",
-    color: "Carbon Heather",
-    link: "https://www.sanmar.com/p/9604_CarbonHthr",
-    image: "https://cdnp.sanmar.com/medias/sys_master/images/h31/h3e/33039515123742/1200W_9604_CarbonHthr-0-CT100615CarbonHthrModelFront4/1200W-9604-CarbonHthr-0-CT100615CarbonHthrModelFront4.jpg",
+    color: "Black",
+    link: "https://www.sanmar.com/p/9604_Black",
+    image: "https://cdnp.sanmar.com/medias/sys_master/images/hd6/h91/33039512502302/1200W_9604_Black-0-CT100615BlackModelFront4/1200W-9604-Black-0-CT100615BlackModelFront4.jpg",
     sizes: ["S", "M", "L", "XL", "2XL", "3XL", "4XL"],
     defaultPrice: null
   },
@@ -51,6 +51,37 @@ export const PRODUCTS = [
     link: "https://www.sanmar.com/p/63784_Tan",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/h91/h3b/28446928863262/1200W_63784_Tan-0-NL9307TanModelFront/1200W-63784-Tan-0-NL9307TanModelFront.jpg",
     sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
+    defaultPrice: null
+  },
+  {
+    id: "nl9307-black",
+    number: "NL9307",
+    name: "Next Level Apparel Heavyweight Hoodie",
+    style: "Pullover Hoodie",
+    color: "Black",
+    link: "https://www.sanmar.com/p/63784_Black",
+    image: "https://cdnp.sanmar.com/medias/sys_master/images/hb8/h04/28446911234078/1200W_63784_Black-0-NL9307BlackModelFront/1200W-63784-Black-0-NL9307BlackModelFront.jpg",
+    sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
+    defaultPrice: null
+  },
+  {
+    id: "st485-black",
+    number: "ST485",
+    name: "Sport-Tek Repeat 7\" Short",
+    style: "Short",
+    color: "Black",
+    link: "https://www.sanmar.com/p/38573_Black",
+    image: "https://cdnp.sanmar.com/medias/sys_master/images/h36/h6c/28276550434846/1200W_38573_Black-0-ST485BlackModelFront3/1200W-38573-Black-0-ST485BlackModelFront3.jpg",
+    defaultPrice: null
+  },
+  {
+    id: "lst447-black",
+    number: "LST447",
+    name: "Sport-Tek Women's Club 3\" Track Short",
+    style: "Women's Short",
+    color: "Black",
+    link: "https://www.sanmar.com/p/68976_Black",
+    image: "https://cdnp.sanmar.com/medias/sys_master/images/h1d/h4b/30952573075486/1200W_68976_Black-0-LST447BlackModelFront/1200W-68976-Black-0-LST447BlackModelFront.jpg",
     defaultPrice: null
   }
 ];

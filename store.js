@@ -13,7 +13,7 @@ const priceOf = (id) => {
   if (typeof p === "number") return p;
   return PRODUCTS.find((x) => x.id === id)?.defaultPrice ?? null;
 };
-const swatch = (color) => ({ "Black": "#1d1f1c", "Coyote Brown": "#8a6f4e", "Carbon Heather": "#5a5b5c", "Tan": "#c4ad86" }[color] || "#6b6f5e");
+const swatch = (color) => ({ "Black": "#1d1f1c", "Coyote Brown": "#8a6f4e", "Tan": "#c4ad86" }[color] || "#6b6f5e");
 
 function renderProducts() {
   const grid = $("#products");
