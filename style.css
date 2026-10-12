@@ -112,14 +112,14 @@ select, input { font: 15px "Inter", sans-serif; padding: 9px 10px; border: 1px s
 .design { margin-bottom: 28px; }
 .design h2 { font-size: 22px; text-transform: uppercase; }
 .design > p { color: var(--muted); margin: 6px 0 14px; max-width: 640px; }
-.design-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 760px; }
+.design-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 960px; }
 .design-grid figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
   display: flex; flex-direction: column; }
 .design-grid img { width: 100%; aspect-ratio: 1/1; display: block; background: #978a6d; object-fit: contain; }
 .design-grid figcaption { padding: 8px 12px; font-size: 13px; color: var(--muted); }
 .design-grid figcaption strong { display: block; color: var(--ink); font-size: 14px; }
 @media (max-width: 560px) {
-  .design-grid { gap: 8px; }
+  .design-grid { gap: 8px; grid-template-columns: repeat(2, 1fr); }
   .design-grid figcaption { padding: 6px 8px; font-size: 11px; }
   .design-grid figcaption strong { font-size: 12px; }
 }

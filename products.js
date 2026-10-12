@@ -102,6 +102,11 @@ export const PRODUCTS = [
     color: "Black",
     link: "https://www.sanmar.com/p/38573_Black",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/h36/h6c/28276550434846/1200W_38573_Black-0-ST485BlackModelFront3/1200W-38573-Black-0-ST485BlackModelFront3.jpg",
+    // SanMar photos with the Archer Company logo added on the right leg.
+    gallery: [
+      { src: "img/shorts-st485-front.jpg?v=dev", view: "front" },
+      { src: "img/shorts-st485-model.jpg?v=dev", view: "on a model" }
+    ],
     defaultPrice: null
   },
   {
@@ -112,6 +117,10 @@ export const PRODUCTS = [
     color: "Black",
     link: "https://www.sanmar.com/p/68976_Black",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/h1d/h4b/30952573075486/1200W_68976_Black-0-LST447BlackModelFront/1200W-68976-Black-0-LST447BlackModelFront.jpg",
+    gallery: [
+      { src: "img/shorts-lst447-front.jpg?v=dev", view: "front" },
+      { src: "img/shorts-lst447-model.jpg?v=dev", view: "on a model" }
+    ],
     defaultPrice: null
   }
 ];
