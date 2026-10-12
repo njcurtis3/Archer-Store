@@ -68,6 +68,12 @@ export const PRODUCTS = [
     color: "Tan",
     link: "https://www.sanmar.com/p/63784_Tan",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/h91/h3b/28446928863262/1200W_63784_Tan-0-NL9307TanModelFront/1200W-63784-Tan-0-NL9307TanModelFront.jpg",
+    // SanMar flat photos with the prints added from the printer's proof.
+    gallery: [
+      { src: "img/nextlevel-nl9307-tan-front.jpg", view: "front" },
+      { src: "img/nextlevel-nl9307-tan-back.jpg", view: "back" },
+      { src: "https://cdnp.sanmar.com/medias/sys_master/images/h91/h3b/28446928863262/1200W_63784_Tan-0-NL9307TanModelFront/1200W-63784-Tan-0-NL9307TanModelFront.jpg", view: "on a model, unprinted" }
+    ],
     sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
     defaultPrice: null
   },
@@ -79,6 +85,12 @@ export const PRODUCTS = [
     color: "Black",
     link: "https://www.sanmar.com/p/63784_Black",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/hb8/h04/28446911234078/1200W_63784_Black-0-NL9307BlackModelFront/1200W-63784-Black-0-NL9307BlackModelFront.jpg",
+    // SanMar flat photos with the prints added from the printer's proof.
+    gallery: [
+      { src: "img/nextlevel-nl9307-black-front.jpg", view: "front" },
+      { src: "img/nextlevel-nl9307-black-back.jpg", view: "back" },
+      { src: "https://cdnp.sanmar.com/medias/sys_master/images/hb8/h04/28446911234078/1200W_63784_Black-0-NL9307BlackModelFront/1200W-63784-Black-0-NL9307BlackModelFront.jpg", view: "on a model, unprinted" }
+    ],
     sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
     defaultPrice: null
   },
