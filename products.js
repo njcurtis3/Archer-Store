@@ -133,6 +133,14 @@ export const DEFAULT_TAX_RATE = 0.0825;
 // The only account allowed into the admin page. Must match firestore.rules.
 export const ADMIN_EMAIL = "nathanjcurtis3@gmail.com";
 
+// Where customers pay. Venmo username without the @.
+export const VENMO_USER = "Nathan-Curtis-14";
+// Opens Venmo (app on phones, website on computers) with the payment filled in.
+export const venmoPayLink = (amount, note) => "https://venmo.com/?" + new URLSearchParams({
+  txn: "pay", audience: "private", recipients: VENMO_USER,
+  ...(amount > 0 ? { amount: amount.toFixed(2) } : {}), note
+}).toString();
+
 export const money = (n) => "$" + (Number(n) || 0).toFixed(2);
 export const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>

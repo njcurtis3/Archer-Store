@@ -1,4 +1,4 @@
-import { PRODUCTS, logosFor, sizesFor, DEFAULT_TAX_RATE, money, round2, esc } from "./products.js";
+import { PRODUCTS, logosFor, sizesFor, DEFAULT_TAX_RATE, VENMO_USER, venmoPayLink, money, round2, esc } from "./products.js";
 import { getFirebase } from "./firebase.js";
 
 const $ = (s) => document.querySelector(s);
@@ -162,9 +162,12 @@ async function onCheckout(e) {
     });
     cart = []; saveCart(); f.reset();
     msg.className = "msg ok";
-    msg.textContent = tbd
-      ? `Order placed! Your total so far is ${money(t.total)}, plus the price of any “Price TBD” items once it's set. The POC will reach out about payment.`
-      : `Order placed! Your total is ${money(t.total)}. The POC will reach out about payment.`;
+    const pay = venmoPayLink(t.total, `Archer Store - ${who.first} ${who.last}`);
+    msg.innerHTML = (tbd
+      ? `Order placed! Your total so far is <strong>${money(t.total)}</strong>, plus the price of any “Price TBD” items once it's set. You can pay this part now and the rest when the POC confirms it.`
+      : `Order placed! Your total is <strong>${money(t.total)}</strong>.`) +
+      `<a class="venmo-btn" href="${esc(pay)}" target="_blank" rel="noopener">Pay ${money(t.total)} with Venmo</a>` +
+      `<span class="fine">Opens Venmo to @${esc(VENMO_USER)} with the amount and your name filled in.</span>`;
   } catch (err) {
     console.error(err);
     msg.className = "msg err"; msg.textContent = "Couldn't send your order. Please try again.";
