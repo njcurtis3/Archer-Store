@@ -93,7 +93,8 @@ export const LOGO_COLORS = ["Black", "White"];
 // Logo choices follow the garment color; colors not listed offer LOGO_COLORS.
 export const LOGOS_BY_COLOR = {
   "Black": ["White", "White w/ Blue Wave"],
-  "Tan": ["Black"]
+  "Tan": ["Black"],
+  "Coyote Brown": ["Black"]
 };
 export const logosFor = (p) => LOGOS_BY_COLOR[p.color] || LOGO_COLORS;
 export const sizesFor = (p) => p.sizes || SIZES;
