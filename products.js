@@ -107,6 +107,8 @@ export const PRODUCTS = [
       { src: "img/shorts-st485-front.jpg?v=dev", view: "front" },
       { src: "img/shorts-st485-model.jpg?v=dev", view: "on a model" }
     ],
+    // Only the leg logo, which has no wave, so no blue-wave option.
+    logos: ["White"],
     defaultPrice: null
   },
   {
@@ -121,6 +123,7 @@ export const PRODUCTS = [
       { src: "img/shorts-lst447-front.jpg?v=dev", view: "front" },
       { src: "img/shorts-lst447-model.jpg?v=dev", view: "on a model" }
     ],
+    logos: ["White"],
     defaultPrice: null
   }
 ];
@@ -129,13 +132,14 @@ export const PRODUCTS = [
 // `sizes` list offers only those; the rest offer all of these.
 export const SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"];
 export const LOGO_COLORS = ["Black", "White"];
-// Logo choices follow the garment color; colors not listed offer LOGO_COLORS.
+// Logo choices follow the garment color unless a product lists its own `logos`;
+// colors not listed offer LOGO_COLORS.
 export const LOGOS_BY_COLOR = {
   "Black": ["White", "White w/ Blue Wave"],
   "Tan": ["Black"],
   "Coyote Brown": ["Black"]
 };
-export const logosFor = (p) => LOGOS_BY_COLOR[p.color] || LOGO_COLORS;
+export const logosFor = (p) => p.logos || LOGOS_BY_COLOR[p.color] || LOGO_COLORS;
 export const sizesFor = (p) => p.sizes || SIZES;
 export const DEFAULT_TAX_RATE = 0.0825;
 

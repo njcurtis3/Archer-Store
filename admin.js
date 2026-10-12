@@ -37,7 +37,7 @@ function checkOrder(o) {
     const label = p ? `${p.number} ${p.color}` : esc(i.productId || "Unknown item");
     if (!p) { notes.push(`${label} isn't in the catalog.`); continue; }
     if (!Number.isInteger(i.qty) || i.qty < 1 || i.qty > 20) notes.push(`${label} has an odd quantity (${esc(i.qty)}).`);
-    if (!logosFor(p).includes(i.logo)) notes.push(`${label} has a ${esc(i.logo)} logo, which isn't offered on ${esc(p.color)} items (${logosFor(p).map(esc).join(" or ")}).`);
+    if (!logosFor(p).includes(i.logo)) notes.push(`${label} has a ${esc(i.logo)} logo, which isn't offered on ${esc(p.color)} ${esc(p.number)} (${logosFor(p).map(esc).join(" or ")}).`);
     if (!sizesFor(p).includes(i.size)) notes.push(`${label} is size ${esc(i.size)}, which this item doesn't come in.`);
     const now = priceOf(p.id);
     if (i.price == null && now != null) notes.push(`${label} was “Price TBD” when ordered; it's now ${money(now)} each, not in this total.`);

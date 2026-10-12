@@ -136,9 +136,11 @@ function totals(items) {
 }
 
 function renderCart() {
-  // Drop saved cart lines for items, sizes or logos the store no longer offers.
+  // Drop saved cart lines for items, sizes or logos the store no longer offers,
+  // except a logo with only one choice left, which just switches to it.
   cart = cart.filter((c) => {
     const p = PRODUCTS.find((x) => x.id === c.productId);
+    if (p && !logosFor(p).includes(c.logo) && logosFor(p).length === 1) c.logo = logosFor(p)[0];
     return p && sizesFor(p).includes(c.size) && logosFor(p).includes(c.logo);
   });
   const items = lineItems();
