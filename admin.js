@@ -1,5 +1,5 @@
-import { PRODUCTS, SIZES, DEFAULT_TAX_RATE, ADMIN_EMAIL, logosFor, sizesFor, venmoPayLink, orderCode, cleanPhone, fmtPhone, money, round2, esc } from "./products.js";
-import { getFirebase } from "./firebase.js";
+import { PRODUCTS, SIZES, DEFAULT_TAX_RATE, ADMIN_EMAIL, logosFor, sizesFor, venmoPayLink, orderCode, cleanPhone, fmtPhone, money, round2, esc } from "./products.js?v=dev";
+import { getFirebase } from "./firebase.js?v=dev";
 
 const $ = (s) => document.querySelector(s);
 let fb = null;

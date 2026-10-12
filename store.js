@@ -1,5 +1,5 @@
-import { PRODUCTS, logosFor, sizesFor, DEFAULT_TAX_RATE, VENMO_USER, venmoPayLink, orderCode, sizeChartLink, cleanPhone, fmtPhone, money, round2, esc } from "./products.js";
-import { getFirebase } from "./firebase.js";
+import { PRODUCTS, logosFor, sizesFor, DEFAULT_TAX_RATE, VENMO_USER, venmoPayLink, orderCode, sizeChartLink, cleanPhone, fmtPhone, money, round2, esc } from "./products.js?v=dev";
+import { getFirebase } from "./firebase.js?v=dev";
 
 const $ = (s) => document.querySelector(s);
 let settings = { taxRate: DEFAULT_TAX_RATE, prices: {}, open: true };

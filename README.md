@@ -3,10 +3,11 @@
 Unit apparel store for A CO 440th Civil Affairs, hosted on GitHub Pages at https://njcurtis3.github.io/Archer-Store/.
 
 - `index.html` / `store.js` — the store. Customers add items to a cart and check out with name and phone.
-- `admin.html` / `admin.js` — admin page (sign in with Google; only nathanjcurtis3@gmail.com gets in). Orders, phone numbers, quantities, subtotal, tax and totals; paid/unpaid tracking; selection totals; supplier order summary by size; CSV export; price, tax and open/closed settings.
+- `admin.html` / `admin.js` — admin page (sign in with Google; only nathanjcurtis3@gmail.com gets in). Orders with order numbers, notes, editing, paid and picked-up tracking, text reminders with a Venmo link, a printable pickup list, selection totals, a supplier summary and size-grid CSV, order CSV export, prices, item costs, tax, printer fees, totals and profit.
 - `products.js` — the catalog (items, photos, sizes, logo colors) and admin email.
 - `firebase-config.js` — Firebase project settings.
-- `firestore.rules` — database security rules.
+- `firestore.rules` — database security rules. Item costs live in `private/costs`, readable only by the admin.
+- `.github/workflows/pages.yml` — publishes the site. It replaces `?v=dev` on CSS and JS links with the commit, so browsers don't mix cached old files with new ones after an update. Keep the `?v=dev` tag on any new `.css`/`.js` link or import.
 
 Orders are stored in Firebase Cloud Firestore. See the setup steps below.
 

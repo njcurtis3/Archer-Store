@@ -1,4 +1,4 @@
-import { firebaseConfig, isConfigured } from "./firebase-config.js";
+import { firebaseConfig, isConfigured } from "./firebase-config.js?v=dev";
 
 const V = "10.12.2";
 let cache = null;
