@@ -19,5 +19,10 @@ Orders are stored in Firebase Cloud Firestore. See the setup steps below.
 5. **Authentication → Settings → Authorized domains → Add domain** → `njcurtis3.github.io`.
 6. **Project settings (gear) → Your apps → Web (`</>`)** → register an app → copy the `firebaseConfig` values into `firebase-config.js` and commit.
 
+## Receipt emails
+Customers can leave an email at checkout. After the order saves, the store posts just the order id to a Google Apps Script web app (`apps-script/`), which runs under the owner's Google account, reads the order from Firestore, and emails the receipt from that Gmail (about 100 emails a day). It only emails the address saved on an order placed in the last 30 minutes, once per order.
+
+To change the script: open it at script.google.com, paste in `apps-script/receipt-mailer.gs` (and `appsscript.json` under Project Settings → show manifest), then **Deploy → Manage deployments → edit → New version**. The web app URL stays the same. If you ever create a brand-new deployment, put its URL in `RECEIPT_MAILER_URL` in `products.js`.
+
 ## Changing products
 Edit `PRODUCTS` in `products.js`. Prices and the tax rate are changed on the admin page.

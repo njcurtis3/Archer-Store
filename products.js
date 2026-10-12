@@ -133,6 +133,14 @@ export const DEFAULT_TAX_RATE = 0.0825;
 // The only account allowed into the admin page. Must match firestore.rules.
 export const ADMIN_EMAIL = "nathanjcurtis3@gmail.com";
 
+// Google Apps Script web app that emails receipts (see apps-script/). Empty turns it off.
+export const RECEIPT_MAILER_URL = "";
+// Loose email check; the receipt mailer re-checks before sending.
+export const cleanEmail = (v) => {
+  const e = String(v || "").trim().toLowerCase();
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) && e.length <= 100 ? e : null;
+};
+
 // Where customers pay. Venmo username without the @.
 export const VENMO_USER = "Nathan-Curtis-14";
 // Opens Venmo (app on phones, website on computers) with the payment filled in.

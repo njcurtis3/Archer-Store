@@ -31,10 +31,13 @@ service cloud.firestore {
 
       allow create: if
         request.resource.data.keys().hasOnly(
-          ['first', 'last', 'phone', 'items', 'subtotal', 'tax', 'total', 'taxRate', 'status', 'createdAt'])
+          ['first', 'last', 'phone', 'email', 'items', 'subtotal', 'tax', 'total', 'taxRate', 'status', 'createdAt'])
         && shortString(request.resource.data.first, 50)
         && shortString(request.resource.data.last, 50)
         && shortString(request.resource.data.phone, 15)
+        && (!('email' in request.resource.data)
+            || (shortString(request.resource.data.email, 100)
+                && request.resource.data.email.matches('^[^@ ]+@[^@ ]+[.][^@ ]+$')))
         && request.resource.data.items is list
         && request.resource.data.items.size() > 0
         && request.resource.data.items.size() <= 30

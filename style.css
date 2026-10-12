@@ -129,6 +129,7 @@ select, input { font: 15px "Inter", sans-serif; padding: 9px 10px; border: 1px s
   background: #008cff; color: #fff; border-radius: 8px; font-weight: 600; text-decoration: none; }
 .venmo-btn:hover { background: #0074d4; }
 .msg .fine { display: block; }
+label .opt { font-weight: 400; }
 
 /* Photo viewer */
 .visual img { cursor: zoom-in; }

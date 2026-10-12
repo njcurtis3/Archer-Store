@@ -1,4 +1,4 @@
-import { PRODUCTS, SIZES, DEFAULT_TAX_RATE, ADMIN_EMAIL, logosFor, sizesFor, venmoPayLink, orderCode, cleanPhone, fmtPhone, money, round2, esc } from "./products.js?v=dev";
+import { PRODUCTS, SIZES, DEFAULT_TAX_RATE, ADMIN_EMAIL, logosFor, sizesFor, venmoPayLink, orderCode, cleanPhone, cleanEmail, fmtPhone, money, round2, esc } from "./products.js?v=dev";
 import { getFirebase } from "./firebase.js?v=dev";
 
 const $ = (s) => document.querySelector(s);
@@ -147,7 +147,7 @@ function render() {
       <article class="order${selected.has(o.id) ? " sel" : ""}${notes.length ? " flag" : ""}" data-id="${o.id}">
         <label class="ocheck"><input type="checkbox" data-sel="${o.id}"${selected.has(o.id) ? " checked" : ""} aria-label="Select order"></label>
         <div class="ohead"><h3>${esc(o.last)}, ${esc(o.first)}</h3><span class="when">#${esc(orderCode(o.id))} · ${fmtDate(o.createdAt)}</span></div>
-        <div class="ocontact"><a href="tel:${esc(o.phone)}">${esc(fmtPhone(o.phone))}</a> · ${itemCount(o)} item${itemCount(o) === 1 ? "" : "s"}</div>
+        <div class="ocontact"><a href="tel:${esc(o.phone)}">${esc(fmtPhone(o.phone))}</a>${o.email ? ` · <a href="mailto:${esc(o.email)}">${esc(o.email)}</a>${o.emailedAt ? ` <span class="sent" title="Receipt emailed ${esc(shortDate(o.emailedAt))}">✓ receipt sent</span>` : ""}` : ""} · ${itemCount(o)} item${itemCount(o) === 1 ? "" : "s"}</div>
         <table class="items">${rows}</table>
         ${notes.length ? `<ul class="flags">${notes.map((n) => `<li>${n}</li>`).join("")}</ul>` : ""}
         <label class="onotes">Notes<textarea rows="1" data-notes="${o.id}" maxlength="500" placeholder="Paid cash, swap to XL, …">${esc(o.notes || "")}</textarea></label>
@@ -264,13 +264,13 @@ async function setStatus(ids, status) {
 
 function exportCsv() {
   const src = selected.size ? orders.filter((o) => selected.has(o.id)) : visible();
-  const head = ["Order #", "Order date", "Last", "First", "Phone", "Apparel #", "Item", "Color", "Size", "Logo", "Qty", "Unit price",
+  const head = ["Order #", "Order date", "Last", "First", "Phone", "Email", "Apparel #", "Item", "Color", "Size", "Logo", "Qty", "Unit price",
     "Line total", "Order subtotal", "Order tax", "Order total", "Status", "Paid on", "Picked up", "Notes"];
   const day = (ts) => ts?.toDate ? ts.toDate().toISOString().slice(0, 10) : "";
   const rows = [head];
   for (const o of src) for (const i of o.items || []) {
     const d = o.createdAt?.toDate ? o.createdAt.toDate().toISOString().slice(0, 10) : "";
-    rows.push([orderCode(o.id), d, o.last, o.first, o.phone, i.number, i.name, i.color, i.size, i.logo, i.qty,
+    rows.push([orderCode(o.id), d, o.last, o.first, o.phone, o.email || "", i.number, i.name, i.color, i.size, i.logo, i.qty,
       i.price ?? "", i.price == null ? "" : round2(i.price * i.qty), o.subtotal, o.tax, o.total, o.status || "unpaid",
       o.status === "paid" ? day(o.paidAt) : "", o.pickedUp ? day(o.pickedUpAt) || "yes" : "", o.notes || ""]);
   }
@@ -381,7 +381,7 @@ function openEditor(o) {
   editing = o;
   editItems = (o.items || []).map((i) => ({ ...i }));
   const f = $("#editForm");
-  f.first.value = o.first || ""; f.last.value = o.last || ""; f.phone.value = o.phone || "";
+  f.first.value = o.first || ""; f.last.value = o.last || ""; f.phone.value = o.phone || ""; f.email.value = o.email || "";
   $("#editTitle").textContent = `Edit order #${orderCode(o.id)}`;
   $("#editMsg").textContent = ""; $("#editMsg").className = "msg";
   renderEditItems();
@@ -430,6 +430,8 @@ $("#editForm").addEventListener("submit", async (e) => {
   const phone = cleanPhone(f.phone.value);
   if (!f.first.value.trim() || !f.last.value.trim()) { msg.className = "msg err"; msg.textContent = "First and last name are required."; return; }
   if (!phone) { msg.className = "msg err"; msg.textContent = "Enter a 10-digit phone number."; return; }
+  const email = f.email.value.trim() ? cleanEmail(f.email.value) : "";
+  if (email === null) { msg.className = "msg err"; msg.textContent = "Check the email address, or leave it blank."; return; }
   if (!editItems.length) { msg.className = "msg err"; msg.textContent = "An order needs at least one item. To remove it entirely, use Delete."; return; }
   // Unpaid orders always use current prices. Paid orders keep what each original
   // line was charged; new or changed lines use the current price.
@@ -445,6 +447,7 @@ $("#editForm").addEventListener("submit", async (e) => {
   try {
     await fb.fs.updateDoc(fb.fs.doc(fb.db, "orders", editing.id), {
       first: f.first.value.trim().slice(0, 50), last: f.last.value.trim().slice(0, 50), phone,
+      email: email || fb.fs.deleteField(),
       items, subtotal, tax, total: round2(subtotal + tax), taxRate: rate
     });
     editor.close();

@@ -1,4 +1,4 @@
-import { PRODUCTS, logosFor, sizesFor, DEFAULT_TAX_RATE, VENMO_USER, venmoPayLink, orderCode, sizeChartLink, cleanPhone, fmtPhone, money, round2, esc } from "./products.js?v=dev";
+import { PRODUCTS, logosFor, sizesFor, DEFAULT_TAX_RATE, VENMO_USER, venmoPayLink, orderCode, sizeChartLink, cleanPhone, cleanEmail, fmtPhone, RECEIPT_MAILER_URL, money, round2, esc } from "./products.js?v=dev";
 import { getFirebase } from "./firebase.js?v=dev";
 
 const $ = (s) => document.querySelector(s);
@@ -180,11 +180,18 @@ async function onCheckout(e) {
     f.phone.reportValidity();
     return;
   }
+  const email = f.email.value.trim() ? cleanEmail(f.email.value) : "";
+  if (email === null) {
+    f.email.setCustomValidity("Check your email address, or leave it blank.");
+    f.email.reportValidity();
+    return;
+  }
   submitting = true; $("#submitBtn").disabled = true;
   const who = {
     first: f.first.value.trim().slice(0, 50),
     last: f.last.value.trim().slice(0, 50),
-    phone
+    phone,
+    ...(email ? { email } : {})
   };
   const t = totals(items);
   const tbd = items.some((i) => i.price == null);
@@ -203,8 +210,14 @@ async function onCheckout(e) {
       createdAt: fs.serverTimestamp()
     });
     cart = []; saveCart(); f.reset();
+    const mailing = !!(email && RECEIPT_MAILER_URL);
+    if (mailing) {
+      // Only the order id is sent; the mailer reads the order and its email address itself.
+      fetch(RECEIPT_MAILER_URL, { method: "POST", mode: "no-cors", keepalive: true, body: JSON.stringify({ id: ref.id }) })
+        .catch((err) => console.warn("Receipt email request failed", err));
+    }
     msg.className = "msg ok";
-    msg.innerHTML = receipt(orderCode(ref.id), who, items, t, tbd);
+    msg.innerHTML = receipt(orderCode(ref.id), who, items, t, tbd, mailing);
   } catch (err) {
     console.error(err);
     msg.className = "msg err"; msg.textContent = "Couldn't send your order. Please try again.";
@@ -214,12 +227,13 @@ async function onCheckout(e) {
 }
 
 // What the customer sees after ordering: something to screenshot, and the pay button.
-function receipt(code, who, items, t, tbd) {
+function receipt(code, who, items, t, tbd, mailing) {
   const pay = venmoPayLink(t.total, `Archer Store #${code} - ${who.first} ${who.last}`);
   const lines = items.map((i) => `<li><span>${i.qty} × ${esc(i.name)}<small>${esc(i.color)} · ${esc(i.size)} · ${esc(i.logo)} logo</small></span><span>${i.price == null ? "TBD" : money(i.price * i.qty)}</span></li>`).join("");
   return `<div class="receipt">
     <div class="rhead"><strong>Order placed</strong><span>Order #${esc(code)}</span></div>
     <p class="fine">${esc(who.first)} ${esc(who.last)} · ${esc(fmtPhone(who.phone))} · ${new Date().toLocaleDateString()}</p>
+    ${mailing ? `<p class="fine">A copy is on its way to <strong>${esc(who.email)}</strong>. Check your spam folder if you don't see it in a few minutes.</p>` : ""}
     <ul>${lines}</ul>
     <div class="rtot"><span>Subtotal</span><span>${money(t.subtotal)}</span></div>
     <div class="rtot"><span>Tax</span><span>${money(t.tax)}</span></div>
@@ -253,6 +267,7 @@ drawer.addEventListener("click", (e) => { if (e.target === drawer) closeCart(); 
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !viewer.open) closeCart(); });
 $("#checkout").addEventListener("submit", onCheckout);
 $("#checkout").phone.addEventListener("input", (e) => e.target.setCustomValidity(""));
+$("#checkout").email.addEventListener("input", (e) => e.target.setCustomValidity(""));
 
 renderProducts(); renderCart();
 loadSettings().then(() => { renderProducts(); renderCart(); });
