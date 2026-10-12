@@ -94,3 +94,32 @@ select, input { font: 15px "Inter", sans-serif; padding: 9px 10px; border: 1px s
 .hero-inner { display: flex; justify-content: center; padding: 28px 16px 32px; }
 .hero-logo { width: min(260px, 62vw); height: auto; filter: drop-shadow(0 2px 10px rgba(0,0,0,.35)); }
 @media (prefers-color-scheme: dark) { .hero { background: radial-gradient(ellipse at 50% 40%, #3d4419 0%, #2a2f12 50%, #15170f 100%); } }
+
+/* Product photo gallery */
+.visual { position: relative; }
+.slides { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.slides::-webkit-scrollbar { display: none; }
+.slides > * { flex: 0 0 100%; scroll-snap-align: start; }
+.nav { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: 0;
+  background: rgba(31, 34, 28, .55); color: #fff; font-size: 24px; line-height: 1; cursor: pointer; display: grid; place-items: center; }
+.nav:hover { background: rgba(31, 34, 28, .8); }
+.prev { left: 8px; } .next { right: 8px; }
+.dots { position: absolute; left: 0; right: 0; bottom: 10px; display: flex; justify-content: center; gap: 6px; pointer-events: none; }
+.dots span { width: 8px; height: 8px; border-radius: 50%; background: rgba(31, 34, 28, .3); box-shadow: 0 0 0 1.5px #fff; }
+.dots span.on { background: var(--olive-dark); }
+
+/* The design */
+.design { margin-bottom: 28px; }
+.design h2 { font-size: 22px; text-transform: uppercase; }
+.design > p { color: var(--muted); margin: 6px 0 14px; max-width: 640px; }
+.design-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 760px; }
+.design-grid figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+  display: flex; flex-direction: column; }
+.design-grid img { width: 100%; aspect-ratio: 1/1; display: block; background: #978a6d; object-fit: contain; }
+.design-grid figcaption { padding: 8px 12px; font-size: 13px; color: var(--muted); }
+.design-grid figcaption strong { display: block; color: var(--ink); font-size: 14px; }
+@media (max-width: 560px) {
+  .design-grid { gap: 8px; }
+  .design-grid figcaption { padding: 6px 8px; font-size: 11px; }
+  .design-grid figcaption strong { font-size: 12px; }
+}

@@ -9,6 +9,12 @@ export const PRODUCTS = [
     color: "Black",
     link: "https://www.sanmar.com/p/4349_Black",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/hf9/h1b/28963219472414/1200W_4349_Black-0-ST350BlackModelFront5/1200W-4349-Black-0-ST350BlackModelFront5.jpg",
+    // Printer's proof mockups; shown instead of `image` when present.
+    gallery: [
+      { src: "img/tee-black-front.jpg", view: "front" },
+      { src: "img/tee-black-back.jpg", view: "back" },
+      { src: "img/tee-black-side.jpg", view: "side" }
+    ],
     defaultPrice: 23.68
   },
   {
@@ -19,6 +25,11 @@ export const PRODUCTS = [
     color: "Coyote Brown",
     link: "https://www.sanmar.com/p/4349_CoyoteBrn",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/h15/h0e/28963222683678/1200W_4349_CoyoteBrn-0-ST350CoyoteBrnModelFront3/1200W-4349-CoyoteBrn-0-ST350CoyoteBrnModelFront3.jpg",
+    gallery: [
+      { src: "img/tee-coyote-front.jpg", view: "front" },
+      { src: "img/tee-coyote-back.jpg", view: "back" },
+      { src: "img/tee-coyote-side.jpg", view: "side" }
+    ],
     defaultPrice: 21.42
   },
   {

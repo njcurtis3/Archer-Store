@@ -21,9 +21,7 @@ function renderProducts() {
     const price = priceOf(p.id);
     return `
     <article class="card">
-      <div class="visual">
-        <img src="${esc(p.image)}" alt="${esc(p.name)} in ${esc(p.color)}" loading="lazy" data-i="${i}">
-      </div>
+      <div class="visual">${visual(p, i)}</div>
       <div class="body">
         <div class="meta"><span class="chip">${esc(p.number)}</span><span class="dot" style="background:${swatch(p.color)}"></span>${esc(p.color)}</div>
         <h3>${esc(p.name)}</h3>
@@ -39,6 +37,7 @@ function renderProducts() {
     </article>`;
   }).join("");
   grid.querySelectorAll("form.add").forEach((f) => f.addEventListener("submit", onAdd));
+  grid.querySelectorAll(".slides").forEach(wireSlides);
   grid.querySelectorAll(".visual img").forEach((img) => {
     const fallback = () => {
       const p = PRODUCTS[+img.dataset.i];
@@ -50,6 +49,27 @@ function renderProducts() {
     if (img.complete && img.naturalWidth === 0) fallback();
     else img.addEventListener("error", fallback, { once: true });
   });
+}
+
+// One photo, or a swipeable gallery when the product has printer mockups.
+function visual(p, i) {
+  const shots = p.gallery || [{ src: p.image, view: "" }];
+  const imgs = shots.map((s, k) => `<img src="${esc(s.src)}" alt="${esc(p.name)} in ${esc(p.color)}${s.view ? `, ${esc(s.view)}` : ""}" loading="${k ? "lazy" : "eager"}" data-i="${i}">`).join("");
+  if (shots.length === 1) return imgs;
+  return `<div class="slides">${imgs}</div>
+    <button type="button" class="nav prev" aria-label="Previous photo">‹</button>
+    <button type="button" class="nav next" aria-label="Next photo">›</button>
+    <div class="dots">${shots.map((s, k) => `<span${k ? "" : ` class="on"`} title="${esc(s.view)}"></span>`).join("")}</div>`;
+}
+
+function wireSlides(slides) {
+  const v = slides.parentElement, n = slides.children.length;
+  const at = () => Math.round(slides.scrollLeft / slides.clientWidth);
+  const go = (k) => slides.scrollTo({ left: ((k + n) % n) * slides.clientWidth, behavior: "smooth" });
+  v.querySelector(".prev").addEventListener("click", () => go(at() - 1));
+  v.querySelector(".next").addEventListener("click", () => go(at() + 1));
+  const dots = [...v.querySelectorAll(".dots span")];
+  slides.addEventListener("scroll", () => dots.forEach((d, k) => d.classList.toggle("on", k === at())), { passive: true });
 }
 
 function onAdd(e) {
