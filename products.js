@@ -134,7 +134,7 @@ export const DEFAULT_TAX_RATE = 0.0825;
 export const ADMIN_EMAIL = "nathanjcurtis3@gmail.com";
 
 // Google Apps Script web app that emails receipts (see apps-script/). Empty turns it off.
-export const RECEIPT_MAILER_URL = "";
+export const RECEIPT_MAILER_URL = "https://script.google.com/macros/s/AKfycbxmOBvP_g95v3wPjIE5gzUsOZ9LTv8WNXvKhPzzJKSn8vRlvWKRlC5LNvhjPtyFT1Sw/exec";
 // Loose email check; the receipt mailer re-checks before sending.
 export const cleanEmail = (v) => {
   const e = String(v || "").trim().toLowerCase();
