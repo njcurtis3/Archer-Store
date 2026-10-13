@@ -51,7 +51,8 @@ export const PRODUCTS = [
     color: "Black",
     link: "https://www.sanmar.com/p/9604_Black",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/hd6/h91/33039512502302/1200W_9604_Black-0-CT100615BlackModelFront4/1200W-9604-Black-0-CT100615BlackModelFront4.jpg",
-    // SanMar flat photos with the prints added from the printer's proof.
+    // Front is the printer's proof mockup; back is a SanMar flat with the back print added,
+    // since the printer's black back mockups leave the back print off.
     gallery: [
       { src: "img/carhartt-ct100615-front.jpg?v=dev", view: "front" },
       { src: "img/carhartt-ct100615-back.jpg?v=dev", view: "back" },
@@ -68,11 +69,11 @@ export const PRODUCTS = [
     color: "Tan",
     link: "https://www.sanmar.com/p/63784_Tan",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/h91/h3b/28446928863262/1200W_63784_Tan-0-NL9307TanModelFront/1200W-63784-Tan-0-NL9307TanModelFront.jpg",
-    // SanMar flat photos with the prints added from the printer's proof.
+    // Printer's proof mockups.
     gallery: [
       { src: "img/nextlevel-nl9307-tan-front.jpg?v=dev", view: "front" },
       { src: "img/nextlevel-nl9307-tan-back.jpg?v=dev", view: "back" },
-      { src: "https://cdnp.sanmar.com/medias/sys_master/images/h91/h3b/28446928863262/1200W_63784_Tan-0-NL9307TanModelFront/1200W-63784-Tan-0-NL9307TanModelFront.jpg", view: "on a model, unprinted" }
+      { src: "img/nextlevel-nl9307-tan-side.jpg?v=dev", view: "side" }
     ],
     sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
     defaultPrice: null
@@ -85,7 +86,8 @@ export const PRODUCTS = [
     color: "Black",
     link: "https://www.sanmar.com/p/63784_Black",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/hb8/h04/28446911234078/1200W_63784_Black-0-NL9307BlackModelFront/1200W-63784-Black-0-NL9307BlackModelFront.jpg",
-    // SanMar flat photos with the prints added from the printer's proof.
+    // Front is the printer's proof mockup; back is a SanMar flat with the back print added,
+    // since the printer's black back mockups leave the back print off.
     gallery: [
       { src: "img/nextlevel-nl9307-black-front.jpg?v=dev", view: "front" },
       { src: "img/nextlevel-nl9307-black-back.jpg?v=dev", view: "back" },
@@ -102,7 +104,7 @@ export const PRODUCTS = [
     color: "Black",
     link: "https://www.sanmar.com/p/38573_Black",
     image: "https://cdnp.sanmar.com/medias/sys_master/images/h36/h6c/28276550434846/1200W_38573_Black-0-ST485BlackModelFront3/1200W-38573-Black-0-ST485BlackModelFront3.jpg",
-    // SanMar photos with the Archer Company logo added on the right leg.
+    // Printer's proof flat, plus a SanMar model photo with the leg logo added.
     gallery: [
       { src: "img/shorts-st485-front.jpg?v=dev", view: "front" },
       { src: "img/shorts-st485-model.jpg?v=dev", view: "on a model" }
