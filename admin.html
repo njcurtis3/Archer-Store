@@ -77,11 +77,12 @@
           <label class="switch"><input type="checkbox" name="open"> Store is open for orders</label>
           <label>Sales tax rate (%)<input name="taxRate" type="number" step="0.001" min="0" max="20" required></label>
           <div id="priceFields"></div>
+          <div id="upchargeFields"></div>
           <label>Printer setup fee ($)<input name="feeSetup" type="number" step="0.01" min="0" required></label>
           <label>Printer color change fee ($)<input name="feeColor" type="number" step="0.01" min="0" required></label>
           <button class="primary" type="submit">Save settings</button>
           <div class="msg" id="settingsMsg" role="status"></div>
-          <p class="fine">Saving updates every unpaid order to these prices and tax rate. Paid orders keep the amounts they were charged.</p>
+          <p class="fine">Prices and costs are for XS–XL; the upcharge is added for bigger sizes. Saving updates every unpaid order to these prices and tax rate. Paid orders keep the amounts they were charged.</p>
         </form>
       </details>
 

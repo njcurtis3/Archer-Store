@@ -53,6 +53,7 @@ h1, h2, h3 { font-family: "Oswald", sans-serif; letter-spacing: .02em; margin: 0
 .card h3 { font-size: 19px; }
 .sub { margin: 0; color: var(--muted); font-size: 13px; }
 .price { font: 600 22px "Oswald", sans-serif; margin: 4px 0 8px; }
+.price small { display: block; font: 400 12px/1.4 "Inter", system-ui, sans-serif; color: var(--muted); }
 .add { display: grid; grid-template-columns: 1fr 1fr 70px; gap: 8px; margin-top: auto; }
 .add button { grid-column: 1 / -1; }
 label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--muted); }

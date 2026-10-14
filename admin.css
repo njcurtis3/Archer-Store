@@ -84,6 +84,7 @@
 .subhead { font: 600 14px "Oswald", sans-serif; text-transform: uppercase; letter-spacing: .03em; margin: 16px 0 0; }
 .pricerow { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px 10px; margin: 0;
   display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pricerow.ups { grid-template-columns: repeat(3, 1fr); }
 .pricerow legend { font-size: 13px; font-weight: 600; color: var(--ink); padding: 0 4px; }
 
 .editor { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink);

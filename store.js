@@ -1,4 +1,4 @@
-import { PRODUCTS, logosFor, sizesFor, DEFAULT_TAX_RATE, VENMO_USER, venmoPayLink, orderCode, sizeChartLink, cleanPhone, cleanEmail, fmtPhone, RECEIPT_MAILER_URL, money, round2, esc } from "./products.js?v=dev";
+import { PRODUCTS, logosFor, sizesFor, sizePrice, UPCHARGE_SIZES, DEFAULT_TAX_RATE, VENMO_USER, venmoPayLink, orderCode, sizeChartLink, cleanPhone, cleanEmail, fmtPhone, RECEIPT_MAILER_URL, money, round2, esc } from "./products.js?v=dev";
 import { getFirebase } from "./firebase.js?v=dev";
 
 const $ = (s) => document.querySelector(s);
@@ -13,6 +13,11 @@ const priceOf = (id) => {
   if (typeof p === "number") return p;
   return PRODUCTS.find((x) => x.id === id)?.defaultPrice ?? null;
 };
+const upcharges = () => settings.upcharges || undefined;
+// "2XL +$2 · 3XL +$3" for the big sizes this item comes in.
+const upchargeNote = (p) => UPCHARGE_SIZES.filter((s) => sizesFor(p).includes(s))
+  .map((s) => [s, round2(sizePrice(0, s, upcharges()))]).filter(([, a]) => a > 0)
+  .map(([s, a]) => `${s} +${money(a).replace(".00", "")}`).join(" · ");
 const swatch = (color) => ({ "Black": "#1d1f1c", "Coyote Brown": "#8a6f4e", "Tan": "#c4ad86" }[color] || "#6b6f5e");
 
 function renderProducts() {
@@ -26,7 +31,7 @@ function renderProducts() {
         <div class="meta"><span class="chip">${esc(p.number)}</span><span class="dot" style="background:${swatch(p.color)}"></span>${esc(p.color)}</div>
         <h3>${esc(p.name)}</h3>
         <p class="sub">${esc(p.style)} · <a href="${esc(p.link)}" target="_blank" rel="noopener">Product details</a> · <a href="${esc(sizeChartLink(p))}" target="_blank" rel="noopener">Size chart</a></p>
-        <div class="price">${price == null ? "Price TBD" : money(price)}</div>
+        <div class="price">${price == null ? "Price TBD" : money(price)}${price != null && upchargeNote(p) ? `<small>${esc(upchargeNote(p))}</small>` : ""}</div>
         <form class="add" data-i="${i}">
           <label>Size<select name="size">${sizesFor(p).map((s) => `<option${s === "M" ? " selected" : ""}>${s}</option>`).join("")}</select></label>
           <label>Logo<select name="logo">${logosFor(p).map((c) => `<option>${esc(c)}</option>`).join("")}</select></label>
@@ -125,7 +130,7 @@ function lineItems() {
     const p = PRODUCTS.find((x) => x.id === c.productId);
     if (!p) return null;
     return { productId: p.id, number: p.number, name: p.name, color: p.color,
-      size: c.size, logo: c.logo, qty: c.qty, price: priceOf(p.id) };
+      size: c.size, logo: c.logo, qty: c.qty, price: sizePrice(priceOf(p.id), c.size, upcharges()) };
   }).filter(Boolean);
 }
 

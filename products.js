@@ -15,7 +15,8 @@ export const PRODUCTS = [
       { src: "img/tee-black-back.jpg?v=dev", view: "back" },
       { src: "img/tee-black-side.jpg?v=dev", view: "side" }
     ],
-    defaultPrice: 23.68
+    run: "2 Color Back",
+    defaultPrice: 22.26
   },
   {
     id: "st350-coyote",
@@ -30,7 +31,8 @@ export const PRODUCTS = [
       { src: "img/tee-coyote-back.jpg?v=dev", view: "back" },
       { src: "img/tee-coyote-side.jpg?v=dev", view: "side" }
     ],
-    defaultPrice: 21.42
+    run: "1 Color Back",
+    defaultPrice: 20.26
   },
   {
     id: "st580-black",
@@ -41,7 +43,8 @@ export const PRODUCTS = [
     link: "https://www.sanmar.com/p/75477_Black",
     // SanMar model photo with the back print added from the printer's proof.
     image: "img/hoodie-st580-back.jpg?v=dev",
-    defaultPrice: null
+    run: "2 Color Back",
+    defaultPrice: 53.98
   },
   {
     id: "ct100615-black",
@@ -59,7 +62,8 @@ export const PRODUCTS = [
       { src: "https://cdnp.sanmar.com/medias/sys_master/images/hd6/h91/33039512502302/1200W_9604_Black-0-CT100615BlackModelFront4/1200W-9604-Black-0-CT100615BlackModelFront4.jpg", view: "on a model, unprinted" }
     ],
     sizes: ["S", "M", "L", "XL", "2XL", "3XL", "4XL"],
-    defaultPrice: null
+    run: "2 Color Back",
+    defaultPrice: 79.2
   },
   {
     id: "nl9307-tan",
@@ -76,7 +80,8 @@ export const PRODUCTS = [
       { src: "img/nextlevel-nl9307-tan-side.jpg?v=dev", view: "side" }
     ],
     sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
-    defaultPrice: null
+    run: "1 Color Back",
+    defaultPrice: 54
   },
   {
     id: "nl9307-black",
@@ -94,6 +99,7 @@ export const PRODUCTS = [
       { src: "https://cdnp.sanmar.com/medias/sys_master/images/hb8/h04/28446911234078/1200W_63784_Black-0-NL9307BlackModelFront/1200W-63784-Black-0-NL9307BlackModelFront.jpg", view: "on a model, unprinted" }
     ],
     sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
+    run: "2 Color Back",
     defaultPrice: null
   },
   {
@@ -111,7 +117,8 @@ export const PRODUCTS = [
     ],
     // Only the leg logo, which has no wave, so no blue-wave option.
     logos: ["White"],
-    defaultPrice: null
+    run: "Shorts",
+    defaultPrice: 28.13
   },
   {
     id: "lst447-black",
@@ -126,7 +133,8 @@ export const PRODUCTS = [
       { src: "img/shorts-lst447-model.jpg?v=dev", view: "on a model" }
     ],
     logos: ["White"],
-    defaultPrice: null
+    run: "Shorts",
+    defaultPrice: 16.03
   }
 ];
 
@@ -144,6 +152,16 @@ export const LOGOS_BY_COLOR = {
 export const logosFor = (p) => p.logos || LOGOS_BY_COLOR[p.color] || LOGO_COLORS;
 export const sizesFor = (p) => p.sizes || SIZES;
 export const DEFAULT_TAX_RATE = 0.0825;
+
+// The printer charges more per piece for big sizes. Added to both the item's price
+// and your cost. Editable on the admin page; these apply until you save your own.
+export const DEFAULT_UPCHARGES = { "2XL": 2, "3XL": 3, "4XL": 4 };
+export const UPCHARGE_SIZES = ["2XL", "3XL", "4XL"];
+// One piece in a given size: the item's base amount plus that size's upcharge. null stays TBD.
+export const sizePrice = (base, size, upcharges) =>
+  base == null ? null : round2(base + ((upcharges || DEFAULT_UPCHARGES)[size] || 0));
+// Each printer run (products sharing a `run`) needs at least this many pieces.
+export const RUN_MINIMUM = 24;
 
 // The only account allowed into the admin page. Must match firestore.rules.
 export const ADMIN_EMAIL = "nathanjcurtis3@gmail.com";

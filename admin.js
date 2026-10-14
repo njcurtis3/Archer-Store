@@ -1,4 +1,4 @@
-import { PRODUCTS, SIZES, DEFAULT_TAX_RATE, ADMIN_EMAIL, logosFor, sizesFor, venmoPayLink, orderCode, cleanPhone, cleanEmail, fmtPhone, money, round2, esc } from "./products.js?v=dev";
+import { PRODUCTS, SIZES, DEFAULT_TAX_RATE, DEFAULT_UPCHARGES, UPCHARGE_SIZES, RUN_MINIMUM, sizePrice, ADMIN_EMAIL, logosFor, sizesFor, venmoPayLink, orderCode, cleanPhone, cleanEmail, fmtPhone, money, round2, esc } from "./products.js?v=dev";
 import { getFirebase } from "./firebase.js?v=dev";
 
 const $ = (s) => document.querySelector(s);
@@ -29,6 +29,9 @@ const priceOf = (id) => {
   if (typeof p === "number") return p;
   return PRODUCTS.find((x) => x.id === id)?.defaultPrice ?? null;
 };
+const upcharges = () => settings.upcharges || DEFAULT_UPCHARGES;
+// Current price of one piece in a size, big-size upcharge included.
+const priceFor = (id, size) => sizePrice(priceOf(id), size, upcharges());
 function checkOrder(o) {
   const notes = [];
   let sub = 0;
@@ -39,10 +42,11 @@ function checkOrder(o) {
     if (!Number.isInteger(i.qty) || i.qty < 1 || i.qty > 20) notes.push(`${label} has an odd quantity (${esc(i.qty)}).`);
     if (!logosFor(p).includes(i.logo)) notes.push(`${label} has a ${esc(i.logo)} logo, which isn't offered on ${esc(p.color)} ${esc(p.number)} (${logosFor(p).map(esc).join(" or ")}).`);
     if (!sizesFor(p).includes(i.size)) notes.push(`${label} is size ${esc(i.size)}, which this item doesn't come in.`);
-    const now = priceOf(p.id);
-    if (i.price == null && now != null) notes.push(`${label} was “Price TBD” when ordered; it's now ${money(now)} each, not in this total.`);
-    else if (i.price != null && now != null && round2(i.price) !== round2(now)) notes.push(`${label} charged ${money(i.price)} each; current price is ${money(now)}.`);
-    else if (i.price != null && now == null) notes.push(`${label} charged ${money(i.price)} each, but its price is TBD.`);
+    const now = priceFor(p.id, i.size);
+    const sized = `${label} (${esc(i.size)})`;
+    if (i.price == null && now != null) notes.push(`${sized} was “Price TBD” when ordered; it's now ${money(now)} each, not in this total.`);
+    else if (i.price != null && now != null && round2(i.price) !== round2(now)) notes.push(`${sized} charged ${money(i.price)} each; current price is ${money(now)}.`);
+    else if (i.price != null && now == null) notes.push(`${sized} charged ${money(i.price)} each, but its price is TBD.`);
     sub += (i.price || 0) * (i.qty || 0);
   }
   sub = round2(sub);
@@ -169,6 +173,16 @@ function render() {
   renderTotals();
 }
 
+// Pieces ordered per printer run, in catalog order.
+function runs() {
+  const n = new Map(PRODUCTS.map((p) => [p.run || "Other", 0]));
+  for (const o of orders) for (const i of o.items || []) {
+    const run = PRODUCTS.find((p) => p.id === i.productId)?.run || "Other";
+    n.set(run, (n.get(run) || 0) + (i.qty || 0));
+  }
+  return [...n];
+}
+
 function renderTotals() {
   const fees = { ...DEFAULT_FEES, ...settings.fees };
   const sum = (k) => round2(orders.reduce((t, o) => t + (o[k] || 0), 0));
@@ -179,7 +193,7 @@ function renderTotals() {
   const row = (label, value, cls = "") => `<tr${cls ? ` class="${cls}"` : ""}><td>${label}</td><td class="n">${value}</td></tr>`;
   let cost = 0, uncosted = 0;
   for (const o of orders) for (const i of o.items || []) {
-    if (typeof costs[i.productId] === "number") cost += costs[i.productId] * (i.qty || 0);
+    if (typeof costs[i.productId] === "number") cost += sizePrice(costs[i.productId], i.size, upcharges()) * (i.qty || 0);
     else uncosted += i.qty || 0;
   }
   cost = round2(cost);
@@ -200,7 +214,10 @@ function renderTotals() {
     ${row("Printer fees", "− " + money(fees.setup + fees.colorChange))}
     ${row("Profit", money(profit), "group")}
   </tbody></table>
-  <p class="fine" style="margin-top:8px">Counts every order, paid and unpaid. The printer fees are charged once for the whole run. Sales tax isn't counted as profit.${tbd ? " Some orders have “Price TBD” items that aren't in these totals yet." : ""}${uncosted ? ` ${uncosted} item${uncosted === 1 ? " has" : "s have"} no cost entered yet, so profit is overstated — add costs under “Prices, tax and ordering.”` : ""}</p>`;
+  <h4 class="subhead">Printer minimums</h4>
+  <table class="sup"><tbody>${runs().map(([run, n]) =>
+    row(`${esc(run)}${n >= RUN_MINIMUM ? " ✓" : ` — ${RUN_MINIMUM - n} more needed`}`, `${n} of ${RUN_MINIMUM}`)).join("")}</tbody></table>
+  <p class="fine" style="margin-top:8px">Counts every order, paid and unpaid. Each printer run needs ${RUN_MINIMUM} pieces in total across its items and sizes. The printer fees are charged once for the whole run. Sales tax isn't counted as profit.${tbd ? " Some orders have “Price TBD” items that aren't in these totals yet." : ""}${uncosted ? ` ${uncosted} item${uncosted === 1 ? " has" : "s have"} no cost entered yet, so profit is overstated — add costs under “Prices, tax and ordering.”` : ""}</p>`;
 }
 
 function renderSelection(list) {
@@ -250,6 +267,8 @@ function renderSettings() {
       <label>Your cost ($)<input name="cost_${p.id}" type="number" step="0.01" min="0" value="${c}" placeholder="Not set"></label>
     </fieldset>`;
   }).join("");
+  $("#upchargeFields").innerHTML = `<fieldset class="pricerow ups"><legend>Big-size upcharge, per piece</legend>${UPCHARGE_SIZES.map((s) =>
+    `<label>${s} (+$)<input name="up_${s}" type="number" step="0.01" min="0" value="${upcharges()[s] ?? 0}"></label>`).join("")}</fieldset>`;
 }
 
 // ---------- Actions ----------
@@ -410,7 +429,8 @@ $("#editItems").addEventListener("change", (e) => {
     if (!logosFor(p).includes(i.logo)) i.logo = logosFor(p)[0];
     i.price = undefined; // repriced on save
     renderEditItems();
-  } else if (f === "qty") i.qty = Math.min(20, Math.max(1, parseInt(e.target.value, 10) || 1));
+  } else if (f === "size") { i.size = e.target.value; i.price = undefined; } // big sizes cost more
+  else if (f === "qty") i.qty = Math.min(20, Math.max(1, parseInt(e.target.value, 10) || 1));
   else i[f] = e.target.value;
 });
 $("#editItems").addEventListener("click", (e) => {
@@ -439,7 +459,7 @@ $("#editForm").addEventListener("submit", async (e) => {
   const items = editItems.map((i) => {
     const keep = paid && i.price !== undefined;
     return { productId: i.productId, number: i.number, name: i.name, color: i.color,
-      size: i.size, logo: i.logo, qty: i.qty, price: keep ? i.price : priceOf(i.productId) };
+      size: i.size, logo: i.logo, qty: i.qty, price: keep ? i.price : priceFor(i.productId, i.size) };
   });
   const rate = paid ? (editing.taxRate ?? settings.taxRate ?? DEFAULT_TAX_RATE) : (settings.taxRate ?? DEFAULT_TAX_RATE);
   const subtotal = round2(items.reduce((t, i) => t + (i.price || 0) * i.qty, 0));
@@ -471,7 +491,7 @@ async function repriceUnpaid() {
     if (o.status === "paid") continue;
     const items = (o.items || []).map((i) => {
       const p = PRODUCTS.find((x) => x.id === i.productId);
-      return p ? { ...i, price: priceOf(p.id) } : i;
+      return p ? { ...i, price: priceFor(p.id, i.size) } : i;
     });
     const subtotal = round2(items.reduce((t, i) => t + (i.price || 0) * (i.qty || 0), 0));
     const tax = round2(subtotal * rate);
@@ -502,7 +522,8 @@ $("#settingsForm").addEventListener("submit", async (e) => {
     if (v !== "") nextCosts[p.id] = round2(parseFloat(v));
   });
   const fees = { setup: round2(parseFloat(f.feeSetup.value) || 0), colorChange: round2(parseFloat(f.feeColor.value) || 0) };
-  const next = { open: f.open.checked, taxRate: Math.round(parseFloat(f.taxRate.value) * 1000) / 100000, prices, fees };
+  const ups = Object.fromEntries(UPCHARGE_SIZES.map((s) => [s, round2(parseFloat(f[`up_${s}`].value) || 0)]));
+  const next = { open: f.open.checked, taxRate: Math.round(parseFloat(f.taxRate.value) * 1000) / 100000, prices, fees, upcharges: ups };
   try {
     await fb.fs.setDoc(fb.fs.doc(fb.db, "settings", "store"), next);
     settings = next;
