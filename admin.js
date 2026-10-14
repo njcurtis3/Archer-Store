@@ -398,7 +398,11 @@ const editor = $("#editor");
 let editing = null, editItems = [];
 function openEditor(o) {
   editing = o;
-  editItems = (o.items || []).map((i) => ({ ...i }));
+  // A logo that's no longer offered shows as the first offered one; save that, not the old one.
+  editItems = (o.items || []).map((i) => {
+    const p = PRODUCTS.find((x) => x.id === i.productId);
+    return p && !logosFor(p).includes(i.logo) ? { ...i, logo: logosFor(p)[0] } : { ...i };
+  });
   const f = $("#editForm");
   f.first.value = o.first || ""; f.last.value = o.last || ""; f.phone.value = o.phone || ""; f.email.value = o.email || "";
   $("#editTitle").textContent = `Edit order #${orderCode(o.id)}`;
