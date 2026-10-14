@@ -157,7 +157,7 @@ function render() {
         <div class="ocontact"><a href="tel:${esc(o.phone)}">${esc(fmtPhone(o.phone))}</a>${o.email ? ` · <a href="mailto:${esc(o.email)}">${esc(o.email)}</a>${o.emailedAt ? ` <span class="sent" title="Receipt emailed ${esc(shortDate(o.emailedAt))}">✓ receipt sent</span>` : ""}` : ""} · ${itemCount(o)} item${itemCount(o) === 1 ? "" : "s"}</div>
         <table class="items">${rows}</table>
         ${notes.length ? `<ul class="flags">${notes.map((n) => `<li>${n}</li>`).join("")}</ul>` : ""}
-        ${due ? `<div class="balance">Paid ${money(amountPaid(o))} of ${money(o.total)} — <strong>owes ${money(due)} more</strong>.
+        ${due ? `<div class="balance"><span>Paid ${money(amountPaid(o))} of ${money(o.total)} — <strong>owes ${money(due)} more</strong></span>
           <span class="bactions"><a class="ghost" href="${esc(balanceTextLink(o))}">Text about balance</a>${o.email ? `<a class="ghost" href="${esc(balanceEmailLink(o))}">Email about balance</a>` : ""}<button class="ghost" data-settle="${o.id}">Mark ${money(due)} paid</button></span></div>` : ""}
         <label class="onotes">Notes<textarea rows="1" data-notes="${o.id}" maxlength="500" placeholder="Paid cash, swap to XL, …">${esc(o.notes || "")}</textarea></label>
         <div class="ofoot">
