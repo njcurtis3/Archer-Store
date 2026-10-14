@@ -71,6 +71,11 @@
 .flags { grid-column: 2; margin: 6px 0 0; padding: 8px 12px 8px 28px; border-radius: 8px; font-size: 13px; color: var(--err);
   background: color-mix(in srgb, var(--err) 10%, transparent); }
 .flags li + li { margin-top: 2px; }
+.balance { grid-column: 2; margin: 6px 0 0; padding: 8px 12px; border-radius: 8px; font-size: 13px; color: var(--err);
+  background: color-mix(in srgb, var(--err) 10%, transparent); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.balance .bactions { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.balance a.ghost { text-decoration: none; display: inline-flex; align-items: center; }
+.paidfield { display: block; max-width: 220px; margin-top: 8px; }
 .ocontact .sent { color: var(--ok); font-size: 12px; font-weight: 600; white-space: nowrap; }
 .onotes { grid-column: 2; margin-top: 6px; font-size: 12px; }
 .onotes textarea { font: 14px "Inter", sans-serif; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px;

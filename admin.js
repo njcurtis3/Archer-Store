@@ -21,6 +21,10 @@ const fmtDate = (ts) => {
 const itemCount = (o) => (o.items || []).reduce((n, i) => n + (i.qty || 0), 0);
 const shortDate = (ts) => ts?.toDate ? ts.toDate().toLocaleDateString([], { month: "short", day: "numeric" }) : "";
 const productLabel = (p) => `${p.number} ${p.name} — ${p.color}`;
+// What the customer has paid so far, and what they still owe. Paid orders from before
+// amountPaid existed count as paid in full.
+const amountPaid = (o) => o.status === "paid" ? (typeof o.amountPaid === "number" ? o.amountPaid : o.total || 0) : 0;
+const balanceDue = (o) => Math.max(0, round2((o.total || 0) - amountPaid(o)));
 
 // Prices arrive from the customer's browser, so the database can't vouch for
 // them. Compare each order to the current catalog and to its own arithmetic.
@@ -126,12 +130,10 @@ function visible() {
 }
 
 function render() {
-  const paid = orders.filter((o) => o.status === "paid");
-  const unpaid = orders.filter((o) => o.status !== "paid");
   $("#tOrders").textContent = orders.length;
   $("#tItems").textContent = orders.reduce((n, o) => n + itemCount(o), 0);
-  $("#tPaid").textContent = money(paid.reduce((t, o) => t + (o.total || 0), 0));
-  $("#tOwed").textContent = money(unpaid.reduce((t, o) => t + (o.total || 0), 0));
+  $("#tPaid").textContent = money(orders.reduce((t, o) => t + amountPaid(o), 0));
+  $("#tOwed").textContent = money(orders.reduce((t, o) => t + balanceDue(o), 0));
 
   const list = visible();
   const box = $("#orders");
@@ -142,6 +144,7 @@ function render() {
     box.innerHTML = (flagged ? `<div class="flagnote">${flagged} order${flagged === 1 ? "" : "s"} need${flagged === 1 ? "s" : ""} a check — see the notes below.</div>` : "") + list.map((o) => {
       const st = o.status === "paid" ? "paid" : "unpaid";
       const notes = checkOrder(o);
+      const due = st === "paid" ? balanceDue(o) : 0;
       const rows = (o.items || []).map((i) => `
         <tr>
           <td>${i.qty} × ${esc(i.name)}<span class="d">${esc(i.color)} · Size ${esc(i.size)} · ${esc(i.logo)} logo · ${esc(i.number)}</span></td>
@@ -154,6 +157,8 @@ function render() {
         <div class="ocontact"><a href="tel:${esc(o.phone)}">${esc(fmtPhone(o.phone))}</a>${o.email ? ` · <a href="mailto:${esc(o.email)}">${esc(o.email)}</a>${o.emailedAt ? ` <span class="sent" title="Receipt emailed ${esc(shortDate(o.emailedAt))}">✓ receipt sent</span>` : ""}` : ""} · ${itemCount(o)} item${itemCount(o) === 1 ? "" : "s"}</div>
         <table class="items">${rows}</table>
         ${notes.length ? `<ul class="flags">${notes.map((n) => `<li>${n}</li>`).join("")}</ul>` : ""}
+        ${due ? `<div class="balance">Paid ${money(amountPaid(o))} of ${money(o.total)} — <strong>owes ${money(due)} more</strong>.
+          <span class="bactions"><a class="ghost" href="${esc(balanceTextLink(o))}">Text about balance</a>${o.email ? `<a class="ghost" href="${esc(balanceEmailLink(o))}">Email about balance</a>` : ""}<button class="ghost" data-settle="${o.id}">Mark ${money(due)} paid</button></span></div>` : ""}
         <label class="onotes">Notes<textarea rows="1" data-notes="${o.id}" maxlength="500" placeholder="Paid cash, swap to XL, …">${esc(o.notes || "")}</textarea></label>
         <div class="ofoot">
           <div class="amounts">Subtotal ${money(o.subtotal)} · Tax ${money(o.tax)} · Total<strong>${money(o.total)}</strong></div>
@@ -276,7 +281,8 @@ async function setStatus(ids, status) {
   const { fs, db } = fb;
   const batch = fs.writeBatch(db);
   ids.forEach((id) => batch.update(fs.doc(db, "orders", id), {
-    status, paidAt: status === "paid" ? fs.serverTimestamp() : null
+    status, paidAt: status === "paid" ? fs.serverTimestamp() : null,
+    amountPaid: status === "paid" ? orders.find((o) => o.id === id)?.total ?? fs.deleteField() : fs.deleteField()
   }));
   await batch.commit();
 }
@@ -284,14 +290,14 @@ async function setStatus(ids, status) {
 function exportCsv() {
   const src = selected.size ? orders.filter((o) => selected.has(o.id)) : visible();
   const head = ["Order #", "Order date", "Last", "First", "Phone", "Email", "Apparel #", "Item", "Color", "Size", "Logo", "Qty", "Unit price",
-    "Line total", "Order subtotal", "Order tax", "Order total", "Status", "Paid on", "Picked up", "Notes"];
+    "Line total", "Order subtotal", "Order tax", "Order total", "Status", "Amount paid", "Balance due", "Paid on", "Picked up", "Notes"];
   const day = (ts) => ts?.toDate ? ts.toDate().toISOString().slice(0, 10) : "";
   const rows = [head];
   for (const o of src) for (const i of o.items || []) {
     const d = o.createdAt?.toDate ? o.createdAt.toDate().toISOString().slice(0, 10) : "";
     rows.push([orderCode(o.id), d, o.last, o.first, o.phone, o.email || "", i.number, i.name, i.color, i.size, i.logo, i.qty,
       i.price ?? "", i.price == null ? "" : round2(i.price * i.qty), o.subtotal, o.tax, o.total, o.status || "unpaid",
-      o.status === "paid" ? day(o.paidAt) : "", o.pickedUp ? day(o.pickedUpAt) || "yes" : "", o.notes || ""]);
+      amountPaid(o), balanceDue(o), o.status === "paid" ? day(o.paidAt) : "", o.pickedUp ? day(o.pickedUpAt) || "yes" : "", o.notes || ""]);
   }
   downloadCsv(rows, "archer-orders");
 }
@@ -333,6 +339,18 @@ function reminderLink(o) {
   return `sms:${o.phone}?&body=${encodeURIComponent(body)}`;
 }
 
+// Balance notice for a paid order whose total went up. Both links only open your own
+// messaging or email app with the message filled in; nothing is sent until you send it.
+function balanceMessage(o) {
+  const code = orderCode(o.id), due = balanceDue(o);
+  return `Hi ${o.first}, this is the Archer Store. Our printer's prices went up after you ordered, so your order #${code} ` +
+    `total is now ${money(o.total)}. You paid ${money(amountPaid(o))}, so there's a balance of ${money(due)}. ` +
+    `Sorry for the change. You can pay the rest on Venmo here: ${venmoPayLink(due, `Archer Store #${code} balance - ${o.first} ${o.last}`)}`;
+}
+const balanceTextLink = (o) => `sms:${o.phone}?&body=${encodeURIComponent(balanceMessage(o))}`;
+const balanceEmailLink = (o) => `mailto:${o.email}?subject=${encodeURIComponent(`Archer Store order #${orderCode(o.id)}: ${money(balanceDue(o))} balance`)}` +
+  `&body=${encodeURIComponent(balanceMessage(o))}`;
+
 // Pickup list for printing, sorted by last name.
 function printPickupList() {
   const src = (selected.size ? orders.filter((o) => selected.has(o.id)) : visible())
@@ -343,7 +361,7 @@ function printPickupList() {
     ${src.map((o) => `<tr><td class="box">☐</td><td><strong>${esc(o.last)}, ${esc(o.first)}</strong></td><td>${esc(orderCode(o.id))}</td>
       <td>${esc(fmtPhone(o.phone))}</td>
       <td>${(o.items || []).map((i) => `${i.qty} × ${esc(i.number)} ${esc(i.color)} · ${esc(i.size)} · ${esc(i.logo)} logo`).join("<br>")}</td>
-      <td>${o.status === "paid" ? "Paid" : `<strong>Owes ${money(o.total)}</strong>`}</td></tr>`).join("")}
+      <td>${balanceDue(o) ? `<strong>Owes ${money(balanceDue(o))}</strong>` : "Paid"}</td></tr>`).join("")}
     </tbody></table>`;
   window.print();
 }
@@ -363,6 +381,11 @@ $("#orders").addEventListener("click", async (e) => {
     await fb.fs.updateDoc(fb.fs.doc(fb.db, "orders", o.id), {
       pickedUp: !o.pickedUp, pickedUpAt: o.pickedUp ? null : fb.fs.serverTimestamp()
     }).catch((err) => alert(err.message));
+  } else if (t.dataset.settle) {
+    const o = orders.find((x) => x.id === t.dataset.settle);
+    t.disabled = true;
+    await fb.fs.updateDoc(fb.fs.doc(fb.db, "orders", o.id), { amountPaid: o.total })
+      .catch((err) => alert(err.message));
   } else if (t.dataset.edit) {
     openEditor(orders.find((x) => x.id === t.dataset.edit));
   } else if (t.dataset.del) {
@@ -405,6 +428,8 @@ function openEditor(o) {
   });
   const f = $("#editForm");
   f.first.value = o.first || ""; f.last.value = o.last || ""; f.phone.value = o.phone || ""; f.email.value = o.email || "";
+  $("#paidWrap").hidden = o.status !== "paid";
+  f.amountPaid.value = o.status === "paid" ? amountPaid(o) : "";
   $("#editTitle").textContent = `Edit order #${orderCode(o.id)}`;
   $("#editMsg").textContent = ""; $("#editMsg").className = "msg";
   renderEditItems();
@@ -468,11 +493,15 @@ $("#editForm").addEventListener("submit", async (e) => {
   const rate = paid ? (editing.taxRate ?? settings.taxRate ?? DEFAULT_TAX_RATE) : (settings.taxRate ?? DEFAULT_TAX_RATE);
   const subtotal = round2(items.reduce((t, i) => t + (i.price || 0) * i.qty, 0));
   const tax = round2(subtotal * rate);
+  // On a paid order, record what they've actually paid so a higher new total shows as a balance.
+  const paidSoFar = paid ? round2(parseFloat(f.amountPaid.value)) : null;
+  if (paid && !(paidSoFar >= 0)) { msg.className = "msg err"; msg.textContent = "Enter the amount paid so far."; return; }
   try {
     await fb.fs.updateDoc(fb.fs.doc(fb.db, "orders", editing.id), {
       first: f.first.value.trim().slice(0, 50), last: f.last.value.trim().slice(0, 50), phone,
       email: email || fb.fs.deleteField(),
-      items, subtotal, tax, total: round2(subtotal + tax), taxRate: rate
+      items, subtotal, tax, total: round2(subtotal + tax), taxRate: rate,
+      ...(paid ? { amountPaid: paidSoFar } : {})
     });
     editor.close();
   } catch (err) {
