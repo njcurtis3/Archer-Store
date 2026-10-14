@@ -33,6 +33,14 @@
 .ocheck { grid-row: span 3; padding-top: 2px; }
 .ohead { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: baseline; }
 .ohead h3 { font-size: 18px; }
+.otoggle { all: unset; cursor: pointer; display: inline-flex; align-items: baseline; gap: 6px; border-radius: 4px; }
+.otoggle:focus-visible { outline: 2px solid var(--olive); outline-offset: 2px; }
+.otoggle .chev { display: inline-block; font-size: 14px; color: var(--muted); transition: transform .15s; }
+.order.closed .otoggle .chev { transform: rotate(-90deg); }
+.order.closed :is(.ocontact, .items, .flags, .balance, .onotes, .ofoot) { display: none; }
+.order.closed .ocheck { grid-row: span 2; }
+.osum { font-size: 14px; color: var(--muted); }
+.osum .bad { color: var(--err); font-weight: 600; }
 .ohead .when { font-size: 12px; color: var(--muted); }
 .ocontact { font-size: 14px; color: var(--muted); }
 .ocontact a { font-weight: 600; }

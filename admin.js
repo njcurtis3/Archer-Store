@@ -13,6 +13,13 @@ let settings = { taxRate: DEFAULT_TAX_RATE, prices: {}, open: true, fees: { ...D
 let unsub = null;
 // What each item costs you. Private: only the admin account can read it.
 let costs = {};
+// Order cards folded down to their summary line. Remembered in this browser only.
+const COLLAPSED_KEY = "archer-admin-collapsed";
+let collapsed = new Set();
+try { collapsed = new Set(JSON.parse(localStorage.getItem(COLLAPSED_KEY) || "[]")); } catch { /* storage blocked */ }
+const saveCollapsed = () => {
+  try { localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...collapsed].filter((id) => orders.some((o) => o.id === id)))); } catch { /* storage blocked */ }
+};
 
 const fmtDate = (ts) => {
   const d = ts?.toDate ? ts.toDate() : null;
@@ -145,15 +152,20 @@ function render() {
       const st = o.status === "paid" ? "paid" : "unpaid";
       const notes = checkOrder(o);
       const due = st === "paid" ? balanceDue(o) : 0;
+      const closed = collapsed.has(o.id);
+      const sum = [`${itemCount(o)} item${itemCount(o) === 1 ? "" : "s"}`, money(o.total),
+        st === "unpaid" ? `<span class="bad">Unpaid</span>` : due ? `<span class="bad">Owes ${money(due)}</span>` : "Paid",
+        o.pickedUp ? "Picked up" : "", notes.length ? `<span class="bad">Needs a check</span>` : ""].filter(Boolean).join(" · ");
       const rows = (o.items || []).map((i) => `
         <tr>
           <td>${i.qty} × ${esc(i.name)}<span class="d">${esc(i.color)} · Size ${esc(i.size)} · ${esc(i.logo)} logo · ${esc(i.number)}</span></td>
           <td class="n">${i.price == null ? "TBD" : money(i.price * i.qty)}</td>
         </tr>`).join("");
       return `
-      <article class="order${selected.has(o.id) ? " sel" : ""}${notes.length ? " flag" : ""}" data-id="${o.id}">
+      <article class="order${selected.has(o.id) ? " sel" : ""}${notes.length ? " flag" : ""}${closed ? " closed" : ""}" data-id="${o.id}">
         <label class="ocheck"><input type="checkbox" data-sel="${o.id}"${selected.has(o.id) ? " checked" : ""} aria-label="Select order"></label>
-        <div class="ohead"><h3>${esc(o.last)}, ${esc(o.first)}</h3><span class="when">#${esc(orderCode(o.id))} · ${fmtDate(o.createdAt)}</span></div>
+        <div class="ohead"><h3><button type="button" class="otoggle" data-collapse="${o.id}" aria-expanded="${!closed}"><span class="chev" aria-hidden="true">▾</span>${esc(o.last)}, ${esc(o.first)}</button></h3><span class="when">#${esc(orderCode(o.id))} · ${fmtDate(o.createdAt)}</span></div>
+        ${closed ? `<div class="osum">${sum}</div>` : ""}
         <div class="ocontact"><a href="tel:${esc(o.phone)}">${esc(fmtPhone(o.phone))}</a>${o.email ? ` · <a href="mailto:${esc(o.email)}">${esc(o.email)}</a>${o.emailedAt ? ` <span class="sent" title="Receipt emailed ${esc(shortDate(o.emailedAt))}">✓ receipt sent</span>` : ""}` : ""} · ${itemCount(o)} item${itemCount(o) === 1 ? "" : "s"}</div>
         <table class="items">${rows}</table>
         ${notes.length ? `<ul class="flags">${notes.map((n) => `<li>${n}</li>`).join("")}</ul>` : ""}
@@ -234,6 +246,8 @@ function renderSelection(list) {
   $("#markPaid").disabled = $("#markUnpaid").disabled = !sel.length;
   $("#selAll").checked = list.length > 0 && list.every((o) => selected.has(o.id));
   $("#exportCsv").textContent = sel.length ? "Export selected" : "Export CSV";
+  $("#foldAll").textContent = list.length && list.every((o) => collapsed.has(o.id)) ? "Expand all" : "Collapse all";
+  $("#foldAll").disabled = !list.length;
 }
 
 function renderSupplier(src) {
@@ -368,7 +382,12 @@ function printPickupList() {
 
 $("#orders").addEventListener("click", async (e) => {
   const t = e.target;
-  if (t.dataset.sel) {
+  const fold = t.closest("[data-collapse]");
+  if (fold) {
+    const id = fold.dataset.collapse;
+    collapsed.has(id) ? collapsed.delete(id) : collapsed.add(id);
+    saveCollapsed(); render();
+  } else if (t.dataset.sel) {
     t.checked ? selected.add(t.dataset.sel) : selected.delete(t.dataset.sel);
     render();
   } else if (t.dataset.toggle) {
@@ -410,6 +429,12 @@ $("#selAll").addEventListener("change", (e) => {
 $("#markPaid").addEventListener("click", () => setStatus([...selected], "paid").catch((err) => alert(err.message)));
 $("#markUnpaid").addEventListener("click", () => setStatus([...selected], "unpaid").catch((err) => alert(err.message)));
 $("#exportCsv").addEventListener("click", exportCsv);
+$("#foldAll").addEventListener("click", () => {
+  const list = visible();
+  const open = list.length && list.every((o) => collapsed.has(o.id));
+  list.forEach((o) => open ? collapsed.delete(o.id) : collapsed.add(o.id));
+  saveCollapsed(); render();
+});
 $("#printPickup").addEventListener("click", printPickupList);
 $("#exportSupplier").addEventListener("click", () => {
   const src = selected.size ? orders.filter((o) => selected.has(o.id)) : visible();
